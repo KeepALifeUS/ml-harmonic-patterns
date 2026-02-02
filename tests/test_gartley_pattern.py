@@ -8,9 +8,9 @@ harmonic pattern detection system.
 Test Categories:
 1. Unit Tests - Core functionality validation
 2. Integration Tests - End-to-end pattern detection
-3. Performance Tests - Scalability и memory usage
-4. Edge Cases - Error handling и boundary conditions
-5. Validation Tests - Fibonacci accuracy и confidence scoring
+3. Performance Tests - Scalability and memory usage
+4. Edge Cases - Error handling and boundary conditions
+5. Validation Tests - Fibonacci accuracy and confidence scoring
 
 Author: ML Harmonic Patterns Contributors
 Created: 2025-09-11
@@ -83,7 +83,7 @@ class TestFibonacciRatios:
         """Test correctness of Fibonacci constants."""
         fib = FibonacciRatios()
         
-        # Основные Gartley ratios
+        # Main Gartley ratios
         assert fib.AB_RETRACEMENT == 0.618
         assert fib.BC_MIN_RETRACEMENT == 0.382
         assert fib.BC_MAX_RETRACEMENT == 0.886
@@ -97,7 +97,7 @@ class TestFibonacciRatios:
         fib = FibonacciRatios()
         
         with pytest.raises(AttributeError):
-            fib.AB_RETRACEMENT = 0.5  # Должно вызвать ошибку
+            fib.AB_RETRACEMENT = 0.5  # Should raise an error
 
 
 class TestPatternPoint:
@@ -135,7 +135,7 @@ class TestDataValidation:
         data = self._create_sample_ohlcv_data(100)
         detector = GartleyPattern()
         
-        # Не должно вызывать исключения
+        # Should not raise an exception
         detector._validate_input_data(data)
     
     def test_missing_required_columns(self):
@@ -143,7 +143,7 @@ class TestDataValidation:
         data = pd.DataFrame({
             'open': [100, 101, 102],
             'high': [105, 106, 107],
-            # Отсутствуют 'low' и 'close'
+            # Missing 'low' and 'close'
         })
         
         detector = GartleyPattern()
@@ -153,7 +153,7 @@ class TestDataValidation:
     
     def test_insufficient_data_length(self):
         """Test handling of insufficient data."""
-        data = self._create_sample_ohlcv_data(10)  # Меньше min_pattern_bars
+        data = self._create_sample_ohlcv_data(10)  # Less than min_pattern_bars
         detector = GartleyPattern(min_pattern_bars=20)
         
         with pytest.raises(ValueError, match="Insufficient data"):
@@ -167,7 +167,7 @@ class TestDataValidation:
         
         detector = GartleyPattern()
         
-        # Должно выдать warning, но не исключение
+        # Should issue a warning, but not an exception
         with pytest.warns(UserWarning):
             detector._validate_input_data(data)
     
@@ -179,7 +179,7 @@ class TestDataValidation:
         base_price = 50000.0
         dates = pd.date_range(start='2025-01-01', periods=length, freq='1H')
         
-        # Random walk с некоторой volatility
+        # Random walk with some volatility
         price_changes = np.random.normal(0, 0.02, length)  # 2% std
         prices = [base_price]
         
@@ -219,10 +219,10 @@ class TestPivotPointDetection:
         
         pivot_points = detector._find_pivot_points(data)
         
-        # Должны найти хотя бы несколько pivot points
+        # Should find at least some pivot points
         assert len(pivot_points) >= 3
         
-        # Все pivot points должны быть PatternPoint objects
+        # All pivot points should be PatternPoint objects
         for point in pivot_points:
             assert isinstance(point, PatternPoint)
             assert 0 <= point.index < len(data)
@@ -236,13 +236,13 @@ class TestPivotPointDetection:
         pivot_points = detector._find_pivot_points(data)
         
         if len(pivot_points) >= 3:
-            # Проверяем что точки чередуются между high и low
+            # Check that points alternate between high and low
             for i in range(1, len(pivot_points) - 1):
                 prev_point = pivot_points[i-1]
                 current_point = pivot_points[i]
                 next_point = pivot_points[i+1]
                 
-                # Current point должен быть либо выше соседей, либо ниже
+                # Current point should be either above or below neighbors
                 is_peak = (current_point.price > prev_point.price and 
                           current_point.price > next_point.price)
                 is_trough = (current_point.price < prev_point.price and 
@@ -252,7 +252,7 @@ class TestPivotPointDetection:
     
     def test_empty_pivot_points(self):
         """Test handling when no pivot points are found."""
-        # Создаем flat данные без значимых движений
+        # Create flat data without significant movements
         data = pd.DataFrame({
             'open': [100.0] * 50,
             'high': [100.1] * 50,
@@ -264,7 +264,7 @@ class TestPivotPointDetection:
         detector = GartleyPattern()
         pivot_points = detector._find_pivot_points(data)
         
-        # Может быть пустым или очень мало точек
+        # May be empty or have very few points
         assert isinstance(pivot_points, list)
     
     def _create_trending_data(self) -> pd.DataFrame:
@@ -272,9 +272,9 @@ class TestPivotPointDetection:
         length = 100
         dates = pd.date_range(start='2025-01-01', periods=length, freq='1H')
         
-        # Создаем uptrend с pullbacks
+        # Create uptrend with pullbacks
         trend = np.linspace(40000, 60000, length)
-        noise = np.sin(np.linspace(0, 4*np.pi, length)) * 2000  # Синусоидальные колебания
+        noise = np.sin(np.linspace(0, 4*np.pi, length)) * 2000  # Sinusoidal oscillations
         prices = trend + noise
         
         ohlc_data = []
@@ -291,9 +291,9 @@ class TestPivotPointDetection:
     
     def _create_zigzag_data(self) -> pd.DataFrame:
         """Create ZigZag data for testing."""
-        # Четкие high/low alternating pattern
+        # Clear high/low alternating pattern
         prices = [40000, 45000, 42000, 48000, 44000, 50000, 46000, 52000]
-        length = len(prices) * 10  # Растягиваем каждую точку
+        length = len(prices) * 10  # Stretch each point
         
         extended_prices = []
         for price in prices:
@@ -321,12 +321,12 @@ class TestGartleyGeometry:
         """Test validation of correct bullish Gartley geometry."""
         detector = GartleyPattern()
         
-        # Создаем корректную структуру bullish Gartley: X(low)->A(high)->B(low)->C(high)->D(low)
+        # Create correct bullish Gartley structure: X(low)->A(high)->B(low)->C(high)->D(low)
         x = PatternPoint(index=0, price=40000)   # Low
         a = PatternPoint(index=10, price=50000)  # High
-        b = PatternPoint(index=20, price=43000)  # Low (откат)
+        b = PatternPoint(index=20, price=43000)  # Low (retracement)
         c = PatternPoint(index=30, price=47000)  # High (correction)
-        d = PatternPoint(index=40, price=42000)  # Low (completion, выше X)
+        d = PatternPoint(index=40, price=42000)  # Low (completion, above X)
         
         is_valid = detector._is_valid_gartley_geometry(x, a, b, c, d)
         assert is_valid == True
@@ -335,12 +335,12 @@ class TestGartleyGeometry:
         """Test validation of correct bearish Gartley geometry."""
         detector = GartleyPattern()
         
-        # Создаем корректную структуру bearish Gartley: X(high)->A(low)->B(high)->C(low)->D(high)
+        # Create correct bearish Gartley structure: X(high)->A(low)->B(high)->C(low)->D(high)
         x = PatternPoint(index=0, price=50000)   # High
         a = PatternPoint(index=10, price=40000)  # Low
-        b = PatternPoint(index=20, price=47000)  # High (откат)
+        b = PatternPoint(index=20, price=47000)  # High (retracement)
         c = PatternPoint(index=30, price=43000)  # Low (correction)
-        d = PatternPoint(index=40, price=48000)  # High (completion, ниже X)
+        d = PatternPoint(index=40, price=48000)  # High (completion, below X)
         
         is_valid = detector._is_valid_gartley_geometry(x, a, b, c, d)
         assert is_valid == True
@@ -349,7 +349,7 @@ class TestGartleyGeometry:
         """Test rejection of incorrect geometry."""
         detector = GartleyPattern()
         
-        # Некорректная структура - все точки возрастают
+        # Invalid structure - all points are increasing
         x = PatternPoint(index=0, price=40000)
         a = PatternPoint(index=10, price=41000)
         b = PatternPoint(index=20, price=42000)
@@ -363,12 +363,12 @@ class TestGartleyGeometry:
         """Test rejection of pattern with incorrect D level."""
         detector = GartleyPattern()
         
-        # D ниже X в bullish паттерне (некорректно)
+        # D below X in bullish pattern (invalid)
         x = PatternPoint(index=0, price=40000)
         a = PatternPoint(index=10, price=50000)
         b = PatternPoint(index=20, price=43000)
         c = PatternPoint(index=30, price=47000)
-        d = PatternPoint(index=40, price=38000)  # Ниже X
+        d = PatternPoint(index=40, price=38000)  # Below X
         
         is_valid = detector._is_valid_gartley_geometry(x, a, b, c, d)
         assert is_valid == False
@@ -381,12 +381,12 @@ class TestFibonacciValidation:
         """Test pattern with ideal Fibonacci ratios."""
         detector = GartleyPattern(tolerance=0.01)
         
-        # Создаем паттерн с точными Fibonacci ratios
+        # Create pattern with exact Fibonacci ratios
         x = PatternPoint(index=0, price=1000.0)
         a = PatternPoint(index=10, price=1500.0)  # XA = 500
-        b = PatternPoint(index=20, price=1191.0)  # AB = 309 (61.8% от XA)
-        c = PatternPoint(index=30, price=1309.0)  # BC = 118 (38.2% от AB)
-        d = PatternPoint(index=40, price=1393.0)  # AD = 393 (78.6% от XA)
+        b = PatternPoint(index=20, price=1191.0)  # AB = 309 (61.8% of XA)
+        c = PatternPoint(index=30, price=1309.0)  # BC = 118 (38.2% of AB)
+        d = PatternPoint(index=40, price=1393.0)  # AD = 393 (78.6% of XA)
         
         data = self._create_pattern_data([x, a, b, c, d])
         pattern_result = detector._validate_and_score_pattern(
@@ -397,7 +397,7 @@ class TestFibonacciValidation:
         assert pattern_result.validation_status == PatternValidation.VALID
         assert pattern_result.confidence_score > 0.8
         
-        # Проверяем Fibonacci ratios
+        # Check Fibonacci ratios
         assert abs(pattern_result.ab_ratio - 0.618) < 0.05
         assert abs(pattern_result.ad_ratio - 0.786) < 0.05
     
@@ -405,12 +405,12 @@ class TestFibonacciValidation:
         """Test pattern with acceptable but not ideal ratios."""
         detector = GartleyPattern(tolerance=0.1)
         
-        # Создаем паттерн с acceptable ratios
+        # Create pattern with acceptable ratios
         x = PatternPoint(index=0, price=1000.0)
         a = PatternPoint(index=10, price=1500.0)
-        b = PatternPoint(index=20, price=1200.0)  # ~60% вместо 61.8%
-        c = PatternPoint(index=30, price=1320.0)  # ~40% от AB
-        d = PatternPoint(index=40, price=1400.0)  # ~80% от XA
+        b = PatternPoint(index=20, price=1200.0)  # ~60% instead of 61.8%
+        c = PatternPoint(index=30, price=1320.0)  # ~40% of AB
+        d = PatternPoint(index=40, price=1400.0)  # ~80% of XA
         
         data = self._create_pattern_data([x, a, b, c, d])
         pattern_result = detector._validate_and_score_pattern(
@@ -418,17 +418,17 @@ class TestFibonacciValidation:
         )
         
         assert pattern_result is not None
-        # Может быть VALID или MARGINAL в зависимости от scoring
+        # May be VALID or MARGINAL depending on scoring
         assert pattern_result.validation_status in [PatternValidation.VALID, PatternValidation.MARGINAL]
     
     def test_invalid_fibonacci_ratios(self):
         """Test pattern with incorrect Fibonacci ratios."""
         detector = GartleyPattern(tolerance=0.05)
         
-        # Создаем паттерн с плохими ratios
+        # Create pattern with poor ratios
         x = PatternPoint(index=0, price=1000.0)
         a = PatternPoint(index=10, price=1500.0)
-        b = PatternPoint(index=20, price=1400.0)  # Только 20% retracement
+        b = PatternPoint(index=20, price=1400.0)  # Only 20% retracement
         c = PatternPoint(index=30, price=1450.0)
         d = PatternPoint(index=40, price=1300.0)  # 40% retracement instead of 78.6%
         
@@ -437,7 +437,7 @@ class TestFibonacciValidation:
             (x, a, b, c, d), data, "BTCUSDT", "1h"
         )
         
-        # Должен быть отклонен или иметь очень низкий confidence
+        # Should be rejected or have very low confidence
         assert pattern_result is None or pattern_result.confidence_score < 0.3
     
     def _create_pattern_data(self, points: List[PatternPoint]) -> pd.DataFrame:
@@ -445,7 +445,7 @@ class TestFibonacciValidation:
         max_index = max(point.index for point in points) + 10
         dates = pd.date_range(start='2025-01-01', periods=max_index, freq='1H')
         
-        # Интерполяция цен между точками
+        # Interpolate prices between points
         indices = [point.index for point in points]
         prices = [point.price for point in points]
         
@@ -469,15 +469,15 @@ class TestPatternDetection:
     
     def test_detect_patterns_with_valid_data(self):
         """Test pattern detection with valid data."""
-        detector = GartleyPattern(min_confidence=0.5)  # Низкий порог для тестов
+        detector = GartleyPattern(min_confidence=0.5)  # Low threshold for tests
         data = self._create_realistic_crypto_data_with_pattern()
         
         patterns = detector.detect_patterns(data, symbol="BTCUSDT", timeframe="1h")
         
-        # Должны найти хотя бы один паттерн или пустой список (не ошибку)
+        # Should find at least one pattern or empty list (not an error)
         assert isinstance(patterns, list)
         
-        # Если паттерны найдены, проверяем их структуру
+        # If patterns are found, check their structure
         for pattern in patterns:
             assert isinstance(pattern, PatternResult)
             assert pattern.pattern_type in [PatternType.BULLISH, PatternType.BEARISH]
@@ -489,7 +489,7 @@ class TestPatternDetection:
     def test_detect_patterns_insufficient_data(self):
         """Test detection with insufficient data."""
         detector = GartleyPattern()
-        data = TestDataValidation()._create_sample_ohlcv_data(10)  # Слишком мало данных
+        data = TestDataValidation()._create_sample_ohlcv_data(10)  # Too little data
         
         with pytest.raises(ValueError):
             detector.detect_patterns(data)
@@ -499,18 +499,18 @@ class TestPatternDetection:
         detector = GartleyPattern()
         data = TestDataValidation()._create_sample_ohlcv_data(100)
         
-        # Первый вызов
+        # First call
         patterns1 = detector.detect_patterns(data, symbol="BTCUSDT", timeframe="1h")
         cache_stats1 = detector.get_cache_stats()
         
-        # Второй вызов с теми же данными
+        # Second call with the same data
         patterns2 = detector.detect_patterns(data, symbol="BTCUSDT", timeframe="1h")
         cache_stats2 = detector.get_cache_stats()
         
-        # Результаты должны быть идентичными
+        # Results should be identical
         assert len(patterns1) == len(patterns2)
         
-        # Кэш должен использоваться
+        # Cache should be used
         assert cache_stats2['patterns_cache_size'] >= cache_stats1['patterns_cache_size']
     
     def test_clear_cache(self):
@@ -518,17 +518,17 @@ class TestPatternDetection:
         detector = GartleyPattern()
         data = TestDataValidation()._create_sample_ohlcv_data(100)
         
-        # Создаем кэшированные данные
+        # Create cached data
         detector.detect_patterns(data, symbol="BTCUSDT", timeframe="1h")
         
-        # Проверяем что кэш не пустой
+        # Check that cache is not empty
         cache_stats_before = detector.get_cache_stats()
         assert cache_stats_before['patterns_cache_size'] > 0
         
-        # Очищаем кэш
+        # Clear cache
         detector.clear_cache()
         
-        # Проверяем что кэш очищен
+        # Check that cache is cleared
         cache_stats_after = detector.get_cache_stats()
         assert cache_stats_after['patterns_cache_size'] == 0
         assert cache_stats_after['zigzag_cache_size'] == 0
@@ -538,10 +538,10 @@ class TestPatternDetection:
         length = 200
         dates = pd.date_range(start='2025-01-01', periods=length, freq='1H')
         
-        # Базовый тренд
+        # Base trend
         base_trend = np.linspace(45000, 55000, length)
         
-        # Добавляем Gartley-подобную структуру в середину
+        # Add Gartley-like structure in the middle
         gartley_start = 50
         gartley_pattern = np.array([
             0,      # X
@@ -555,14 +555,14 @@ class TestPatternDetection:
         pattern_indices = np.linspace(gartley_start, gartley_start + 80, len(gartley_pattern))
         pattern_overlay = np.interp(range(length), pattern_indices, gartley_pattern)
         
-        # Комбинируем тренд и паттерн
+        # Combine trend and pattern
         prices = base_trend + pattern_overlay
         
-        # Добавляем реалистичный шум
+        # Add realistic noise
         noise = np.random.normal(0, 200, length)
         prices += noise
         
-        # Создаем OHLCV
+        # Create OHLCV
         ohlc_data = []
         for i, price in enumerate(prices):
             volatility = abs(np.random.normal(0, 100))
@@ -595,13 +595,13 @@ class TestTradingLevels:
             (x, a, b, c, d), PatternType.BULLISH
         )
         
-        # Entry должен быть в точке D
+        # Entry should be at point D
         assert entry == d.price
         
-        # Stop loss должен быть ниже X для bullish
+        # Stop loss should be below X for bullish
         assert stop_loss < x.price
         
-        # Take profits должны быть выше entry
+        # Take profits should be above entry
         assert tp1 > entry
         assert tp2 > tp1
         assert tp3 > tp2
@@ -621,13 +621,13 @@ class TestTradingLevels:
             (x, a, b, c, d), PatternType.BEARISH
         )
         
-        # Entry должен быть в точке D
+        # Entry should be at point D
         assert entry == d.price
         
-        # Stop loss должен быть выше X для bearish
+        # Stop loss should be above X for bearish
         assert stop_loss > x.price
         
-        # Take profits должны быть ниже entry
+        # Take profits should be below entry
         assert tp1 < entry
         assert tp2 < tp1
         assert tp3 < tp2
@@ -649,7 +649,7 @@ class TestTradingLevels:
         """Test zero risk handling."""
         detector = GartleyPattern()
         
-        # Случай где entry == stop_loss (нулевой риск)
+        # Case where entry == stop_loss (zero risk)
         rr_ratio = detector._calculate_risk_reward_ratio(45000, 45000, 48000)
         
         assert rr_ratio == 0.0
@@ -662,7 +662,7 @@ class TestEntrySignals:
         """Test bullish entry signal generation."""
         detector = GartleyPattern()
         
-        # Создаем качественный bullish паттерн
+        # Create a quality bullish pattern
         pattern = self._create_sample_pattern_result(PatternType.BULLISH, confidence=0.85)
         
         signals = detector.get_entry_signals(pattern)
@@ -746,13 +746,13 @@ class TestPositionSizing:
             pattern, account_balance, max_risk_percent
         )
         
-        # Проверяем основные расчеты
-        assert position_info['risk_amount'] == 200  # 2% от $10k
+        # Check main calculations
+        assert position_info['risk_amount'] == 200  # 2% of $10k
         assert position_info['position_size'] > 0
         assert position_info['leverage'] >= 1
         assert position_info['max_loss'] == 200
         
-        # Potential profits должны быть рассчитаны
+        # Potential profits should be calculated
         assert position_info['potential_profit_tp1'] > 0
         assert position_info['potential_profit_tp2'] > position_info['potential_profit_tp1']
         assert position_info['potential_profit_tp3'] > position_info['potential_profit_tp2']
@@ -769,7 +769,7 @@ class TestPositionSizing:
         low_conf_pattern = TestEntrySignals()._create_sample_pattern_result(PatternType.BULLISH, 0.6)
         low_conf_position = detector.calculate_position_size(low_conf_pattern, 10000, 2.0)
         
-        # High confidence должен иметь больший position size
+        # High confidence should have a larger position size
         assert high_conf_position['position_size'] > low_conf_position['position_size']
         assert high_conf_position['confidence_adjustment'] > low_conf_position['confidence_adjustment']
     
@@ -777,9 +777,9 @@ class TestPositionSizing:
         """Test zero risk handling."""
         detector = GartleyPattern()
         
-        # Паттерн с entry == stop_loss (нулевой риск)
+        # Pattern with entry == stop_loss (zero risk)
         pattern = TestEntrySignals()._create_sample_pattern_result(PatternType.BULLISH, 0.8)
-        pattern = pattern._replace(stop_loss=pattern.entry_price)  # Нулевой риск
+        pattern = pattern._replace(stop_loss=pattern.entry_price)  # Zero risk
         
         position_info = detector.calculate_position_size(pattern, 10000, 2.0)
         
@@ -792,18 +792,18 @@ class TestUtilityFunctions:
     
     def test_analyze_pattern_performance(self):
         """Test pattern performance analysis."""
-        # Создаем паттерны для анализа
+        # Create patterns for analysis
         patterns = [
             TestEntrySignals()._create_sample_pattern_result(PatternType.BULLISH, 0.8),
             TestEntrySignals()._create_sample_pattern_result(PatternType.BEARISH, 0.75)
         ]
         
-        # Создаем mock future price data
+        # Create mock future price data
         future_prices = pd.Series([42000, 43000, 44500, 46000, 48000, 47000, 45000] * 10)
         
         performance = analyze_pattern_performance(patterns, future_prices, lookforward_periods=50)
         
-        # Проверяем структуру результата
+        # Check result structure
         assert 'total_patterns' in performance
         assert 'successful_patterns' in performance
         assert 'success_rate' in performance
@@ -815,14 +815,14 @@ class TestUtilityFunctions:
     
     def test_filter_patterns_by_quality(self):
         """Test pattern quality filtering."""
-        # Создаем паттерны с разным качеством
+        # Create patterns with different quality
         patterns = [
-            TestEntrySignals()._create_sample_pattern_result(PatternType.BULLISH, 0.9),   # Высокое качество
-            TestEntrySignals()._create_sample_pattern_result(PatternType.BEARISH, 0.6),  # Низкое качество
-            TestEntrySignals()._create_sample_pattern_result(PatternType.BULLISH, 0.8),  # Среднее качество
+            TestEntrySignals()._create_sample_pattern_result(PatternType.BULLISH, 0.9),   # High quality
+            TestEntrySignals()._create_sample_pattern_result(PatternType.BEARISH, 0.6),  # Low quality
+            TestEntrySignals()._create_sample_pattern_result(PatternType.BULLISH, 0.8),  # Medium quality
         ]
         
-        # Устанавливаем высокие стандарты фильтрации
+        # Set high filtering standards
         filtered = filter_patterns_by_quality(
             patterns,
             min_confidence=0.75,
@@ -830,7 +830,7 @@ class TestUtilityFunctions:
             max_risk_percent=3.0
         )
         
-        # Должны остаться только высококачественные паттерны
+        # Only high-quality patterns should remain
         assert len(filtered) <= len(patterns)
         
         for pattern in filtered:
@@ -841,11 +841,11 @@ class TestUtilityFunctions:
     
     def test_empty_pattern_lists(self):
         """Test handling of empty pattern lists."""
-        # Performance analysis с пустым списком
+        # Performance analysis with empty list
         performance = analyze_pattern_performance([], pd.Series([]), 50)
         assert performance == {}
         
-        # Filter с пустым списком
+        # Filter with empty list
         filtered = filter_patterns_by_quality([])
         assert filtered == []
 
@@ -860,14 +860,14 @@ class TestVisualizationData:
         
         viz_data = detector.prepare_visualization_data(pattern)
         
-        # Проверяем основные компоненты
+        # Check main components
         assert 'pattern_points' in viz_data
         assert 'pattern_lines' in viz_data
         assert 'fibonacci_levels' in viz_data
         assert 'trading_levels' in viz_data
         assert 'metadata' in viz_data
         
-        # Проверяем pattern points
+        # Check pattern points
         assert len(viz_data['pattern_points']) == 5  # X, A, B, C, D
         for point in viz_data['pattern_points']:
             assert 'name' in point
@@ -875,7 +875,7 @@ class TestVisualizationData:
             assert 'price' in point
             assert 'color' in point
         
-        # Проверяем trading levels
+        # Check trading levels
         trading_levels = viz_data['trading_levels']
         level_names = [level['name'] for level in trading_levels]
         assert 'Entry' in level_names
@@ -884,7 +884,7 @@ class TestVisualizationData:
         assert 'TP2' in level_names
         assert 'TP3' in level_names
         
-        # Проверяем metadata
+        # Check metadata
         metadata = viz_data['metadata']
         assert metadata['pattern_type'] == 'bullish'
         assert 'confidence_score' in metadata
@@ -898,11 +898,11 @@ class TestErrorHandling:
         """Test handling of incorrect data."""
         detector = GartleyPattern()
         
-        # Тест с None
+        # Test with None
         with pytest.raises((ValueError, AttributeError)):
             detector.detect_patterns(None)
         
-        # Тест с пустым DataFrame
+        # Test with empty DataFrame
         empty_df = pd.DataFrame()
         with pytest.raises(ValueError):
             detector.detect_patterns(empty_df)
@@ -911,7 +911,7 @@ class TestErrorHandling:
         """Test handling of corrupted pattern data."""
         detector = GartleyPattern()
         
-        # Паттерн с None точками
+        # Pattern with None points
         corrupted_points = (None, None, None, None, None)
         data = TestDataValidation()._create_sample_ohlcv_data(100)
         
@@ -919,14 +919,14 @@ class TestErrorHandling:
             corrupted_points, data, "BTCUSDT", "1h"
         )
         
-        # Должен вернуть None или обработать gracefully
+        # Should return None or handle gracefully
         assert result is None
     
     def test_extreme_price_values(self):
         """Test handling of extreme price values."""
         detector = GartleyPattern()
         
-        # Создаем данные с экстремальными значениями
+        # Create data with extreme values
         extreme_data = pd.DataFrame({
             'open': [1e-10, 1e10, 0, float('inf')],
             'high': [1e-10, 1e10, 0, float('inf')],
@@ -935,12 +935,12 @@ class TestErrorHandling:
             'volume': [1000, 1000, 1000, 1000]
         })
         
-        # Не должно вызывать исключение, может вернуть пустой список
+        # Should not raise an exception, may return empty list
         try:
             patterns = detector.detect_patterns(extreme_data)
             assert isinstance(patterns, list)
         except (ValueError, RuntimeError):
-            # Допустимо если extreme values вызывают контролируемую ошибку
+            # Acceptable if extreme values cause a controlled error
             pass
 
 
@@ -952,7 +952,7 @@ class TestPerformance:
         """Test performance on large data."""
         detector = GartleyPattern()
         
-        # Создаем большой dataset
+        # Create a large dataset
         large_data = TestDataValidation()._create_sample_ohlcv_data(5000)
         
         import time
@@ -963,7 +963,7 @@ class TestPerformance:
         end_time = time.time()
         execution_time = end_time - start_time
         
-        # Должно выполниться за разумное время (< 30 секунд)
+        # Should complete in reasonable time (< 30 seconds)
         assert execution_time < 30
         assert isinstance(patterns, list)
     
@@ -971,18 +971,18 @@ class TestPerformance:
         """Test memory usage."""
         detector = GartleyPattern()
         
-        # Создаем данные
+        # Create data
         data = TestDataValidation()._create_sample_ohlcv_data(1000)
         
-        # Запускаем детекцию несколько раз
+        # Run detection multiple times
         for _ in range(5):
             patterns = detector.detect_patterns(data, symbol=f"TEST_{_}", timeframe="1h")
         
-        # Проверяем что кэш не растет бесконтрольно
+        # Check that cache does not grow uncontrollably
         cache_stats = detector.get_cache_stats()
-        assert cache_stats['patterns_cache_size'] <= 10  # Разумный лимит
+        assert cache_stats['patterns_cache_size'] <= 10  # Reasonable limit
         
-        # Очищаем кэш и проверяем освобождение памяти
+        # Clear cache and check memory release
         detector.clear_cache()
         final_stats = detector.get_cache_stats()
         assert final_stats['patterns_cache_size'] == 0

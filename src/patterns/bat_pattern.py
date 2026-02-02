@@ -1,7 +1,7 @@
 """
 Bat Pattern - Professional Harmonic Pattern Detector.
 
-Enterprise Implementation: High-precision Bat паттернов
+Enterprise Implementation: High-precision Bat pattern detection
 using advanced Fibonacci analysis, real-time processing,
 and machine learning classification for professional crypto trading.
 
@@ -82,10 +82,10 @@ class BatPattern(GartleyPattern):
         ```python
         detector = BatPattern(tolerance=0.05, min_confidence=0.75)
         
-        # Детекция паттернов в OHLCV данных
+        # Detect patterns in OHLCV data
         patterns = detector.detect_patterns(ohlcv_data)
-        
-        # Анализ конкретного паттерна
+
+        # Analyze a specific pattern
         if patterns:
             best_pattern = patterns[0]
             entry_signals = detector.get_entry_signals(best_pattern)
@@ -155,14 +155,14 @@ class BatPattern(GartleyPattern):
             if xa_distance == 0:
                 return False
             
-            # AB must be in range 38.2% - 50% от XA
+            # AB must be in range 38.2% - 50% of XA
             ab_ratio = ab_distance / xa_distance
             if not (self.bat_fib_ratios.AB_RETRACEMENT_MIN - self.tolerance <= 
                    ab_ratio <= 
                    self.bat_fib_ratios.AB_RETRACEMENT_MAX + self.tolerance):
                 return False
             
-            # AD must be close to 88.6% от XA (критично для Bat)
+            # AD must be close to 88.6% of XA (critical for Bat)
             ad_ratio = ad_distance / xa_distance
             expected_ad_ratio = self.bat_fib_ratios.AD_RETRACEMENT
             if abs(ad_ratio - expected_ad_ratio) > self.tolerance:
@@ -180,7 +180,7 @@ class BatPattern(GartleyPattern):
         data: pd.DataFrame
     ) -> List[Tuple[PatternPoint, PatternPoint, PatternPoint, PatternPoint, PatternPoint]]:
         """
-        Поиск потенциальных 5-точечных паттернов Bat (X-A-B-C-D).
+        Search for potential 5-point Bat patterns (X-A-B-C-D).
         
         Optimized pattern matching with Bat-specific
         Fibonacci constraints for high-probability setups.
@@ -225,7 +225,7 @@ class BatPattern(GartleyPattern):
         timeframe: Optional[str]
     ) -> Optional[PatternResult]:
         """
-        Полная валидация и scoring паттерна Bat.
+        Full validation and scoring of the Bat pattern.
         
         Comprehensive validation with Bat-specific
         scoring algorithms, risk analysis, and ML-enhanced pattern recognition.
@@ -244,43 +244,43 @@ class BatPattern(GartleyPattern):
             if xa_distance == 0 or ab_distance == 0:
                 return None
             
-            # Fibonacci ratios для валидации
+            # Fibonacci ratios for validation
             ab_ratio = ab_distance / xa_distance
             bc_ratio = bc_distance / ab_distance if ab_distance > 0 else 0
             cd_ratio = cd_distance / bc_distance if bc_distance > 0 else 0
             ad_ratio = ad_distance / xa_distance
-            
+
             # Determine pattern type
             pattern_type = PatternType.BULLISH if a.price > x.price else PatternType.BEARISH
-            
-            # Валидация Fibonacci ratios с Bat-специфичными критериями
+
+            # Validate Fibonacci ratios with Bat-specific criteria
             fib_scores = []
-            
-            # AB должно быть 38.2% - 50% от XA
+
+            # AB should be 38.2% - 50% of XA
             ab_in_range = (self.bat_fib_ratios.AB_RETRACEMENT_MIN <= 
                           ab_ratio <= 
                           self.bat_fib_ratios.AB_RETRACEMENT_MAX)
             ab_score = 1.0 if ab_in_range else 0.0
-            # Дополнительный бонус за точное попадание в 38.2% или 50%
+            # Additional bonus for exact hit on 38.2% or 50%
             if abs(ab_ratio - 0.382) < self.tolerance or abs(ab_ratio - 0.500) < self.tolerance:
                 ab_score = min(1.0, ab_score + 0.2)
             fib_scores.append(ab_score)
             
-            # BC должно быть 38.2% - 88.6% от AB
+            # BC should be 38.2% - 88.6% of AB
             bc_in_range = (self.bat_fib_ratios.BC_MIN_RETRACEMENT <= 
                           bc_ratio <= 
                           self.bat_fib_ratios.BC_MAX_RETRACEMENT)
             bc_score = 1.0 if bc_in_range else 0.0
             fib_scores.append(bc_score)
             
-            # CD должно быть 161.8% - 261.8% от BC (расширение диапазона для Bat)
+            # CD should be 161.8% - 261.8% of BC (extended range for Bat)
             cd_in_range = (self.bat_fib_ratios.CD_MIN_EXTENSION <= 
                           cd_ratio <= 
                           self.bat_fib_ratios.CD_MAX_EXTENSION)
             cd_score = 1.0 if cd_in_range else 0.0
             fib_scores.append(cd_score)
             
-            # AD должно быть ~88.6% от XA (критично для Bat - отличие от Gartley)
+            # AD should be ~88.6% of XA (critical for Bat - differs from Gartley)
             ad_target = self.bat_fib_ratios.AD_RETRACEMENT
             ad_score = 1.0 - abs(ad_ratio - ad_target) / ad_target
             fib_scores.append(max(0, ad_score))
@@ -294,12 +294,12 @@ class BatPattern(GartleyPattern):
             if validation_status == PatternValidation.INVALID:
                 return None
             
-            # Calculate confidence score с Bat-специфичными весами
+            # Calculate confidence score with Bat-specific weights
             confidence_score = self._calculate_bat_confidence_score(
                 pattern_points, data, fib_scores, fibonacci_confluence
             )
             
-            # Calculate trading levels для Bat паттерна
+            # Calculate trading levels for Bat pattern
             entry_price, stop_loss, take_profits = self._calculate_bat_trading_levels(
                 pattern_points, pattern_type
             )
@@ -316,7 +316,7 @@ class BatPattern(GartleyPattern):
                     pattern_points, data
                 )
             
-            # Pattern strength analysis с Bat-специфичными метриками
+            # Pattern strength analysis with Bat-specific metrics
             pattern_strength = self._calculate_bat_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
@@ -372,11 +372,11 @@ class BatPattern(GartleyPattern):
             scores = []
             weights = []
             
-            # 1. Fibonacci accuracy (45% вес - выше чем у Gartley из-за строгости Bat)
+            # 1. Fibonacci accuracy (45% weight - higher than Gartley due to Bat's strictness)
             scores.append(fibonacci_confluence)
             weights.append(0.45)
             
-            # 2. AD ratio precision (20% вес - критично для Bat)
+            # 2. AD ratio precision (20% weight - critical for Bat)
             x, a, b, c, d = pattern_points
             xa_distance = abs(a.price - x.price)
             ad_distance = abs(d.price - a.price)
@@ -388,23 +388,23 @@ class BatPattern(GartleyPattern):
             else:
                 weights[0] += 0.20
             
-            # 3. Pattern symmetry (15% вес)
+            # 3. Pattern symmetry (15% weight)
             symmetry_score = self._calculate_pattern_symmetry(pattern_points)
             scores.append(symmetry_score)
             weights.append(0.15)
             
-            # 4. Market context (10% вес)
+            # 4. Market context (10% weight)
             market_context_score = self._analyze_market_context(pattern_points, data)
             scores.append(market_context_score)
             weights.append(0.10)
             
-            # 5. Volume confirmation (10% вес, если доступно)
+            # 5. Volume confirmation (10% weight, if available)
             if self.enable_volume_analysis and 'volume' in data.columns:
                 volume_score = self._analyze_volume_confirmation(pattern_points, data)
                 scores.append(volume_score)
                 weights.append(0.10)
             else:
-                weights[0] += 0.10  # Перераспределяем вес на Fibonacci
+                weights[0] += 0.10  # Redistribute weight to Fibonacci
             
             # Weighted average
             confidence = np.average(scores, weights=weights)
@@ -432,28 +432,28 @@ class BatPattern(GartleyPattern):
             # Entry price at point D (completion)
             entry_price = d.price
             
-            # Stop loss calculation для Bat паттерна
+            # Stop loss calculation for Bat pattern
             if pattern_type == PatternType.BULLISH:
-                # Для bullish Bat: SL ниже точки X с меньшим буфером
+                # For bullish Bat: SL below point X with smaller buffer
                 xa_range = a.price - x.price
-                stop_loss = x.price - (xa_range * 0.05)  # 5% buffer (меньше чем у Gartley)
-                
-                # Take Profit levels с учетом Bat характеристик
+                stop_loss = x.price - (xa_range * 0.05)  # 5% buffer (smaller than Gartley)
+
+                # Take Profit levels considering Bat characteristics
                 cd_range = d.price - c.price
-                tp1 = entry_price + (cd_range * 0.382)  # 38.2% от CD движения
-                tp2 = entry_price + (cd_range * 0.618)  # 61.8% от CD движения
-                tp3 = entry_price + (cd_range * 1.272)  # 127.2% расширение
-                
+                tp1 = entry_price + (cd_range * 0.382)  # 38.2% of CD movement
+                tp2 = entry_price + (cd_range * 0.618)  # 61.8% of CD movement
+                tp3 = entry_price + (cd_range * 1.272)  # 127.2% extension
+
             else:  # BEARISH
-                # Для bearish Bat: SL выше точки X
+                # For bearish Bat: SL above point X
                 xa_range = x.price - a.price
                 stop_loss = x.price + (xa_range * 0.05)  # 5% buffer
-                
+
                 # Take profit levels (below entry)
                 cd_range = c.price - d.price
-                tp1 = entry_price - (cd_range * 0.382)  # 38.2% от CD движения
-                tp2 = entry_price - (cd_range * 0.618)  # 61.8% от CD движения
-                tp3 = entry_price - (cd_range * 1.272)  # 127.2% расширение
+                tp1 = entry_price - (cd_range * 0.382)  # 38.2% of CD movement
+                tp2 = entry_price - (cd_range * 0.618)  # 61.8% of CD movement
+                tp3 = entry_price - (cd_range * 1.272)  # 127.2% extension
             
             return entry_price, stop_loss, (tp1, tp2, tp3)
             
@@ -470,21 +470,21 @@ class BatPattern(GartleyPattern):
     ) -> float:
         """Calculate Bat pattern strength with specific metrics."""
         try:
-            # Базовый расчет как у родительского класса
+            # Base calculation as in parent class
             base_strength = super()._calculate_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
             
-            # Bat-специфичные дополнения
+            # Bat-specific additions
             x, a, b, c, d = pattern_points
             
-            # AD ratio precision bonus (Bat критично зависит от 88.6%)
+            # AD ratio precision bonus (Bat critically depends on 88.6%)
             xa_distance = abs(a.price - x.price)
             ad_distance = abs(d.price - a.price)
             if xa_distance > 0:
                 ad_ratio = ad_distance / xa_distance
                 ad_precision = 1.0 - abs(ad_ratio - self.bat_fib_ratios.AD_RETRACEMENT) / self.bat_fib_ratios.AD_RETRACEMENT
-                precision_bonus = max(0, ad_precision - 0.8) * 0.5  # Бонус за высокую точность
+                precision_bonus = max(0, ad_precision - 0.8) * 0.5  # Bonus for high precision
                 base_strength = min(1.0, base_strength + precision_bonus)
             
             return base_strength
@@ -559,25 +559,25 @@ class BatPattern(GartleyPattern):
         Bat-specific entry analysis with enhanced precision.
         """
         try:
-            # Базовые сигналы от родительского класса
+            # Base signals from parent class
             signals = super().get_entry_signals(pattern)
-            
-            # Bat-специфичные модификации
+
+            # Bat-specific modifications
             signals['entry_reason'] = f"Bat {pattern.pattern_type.value} pattern completion (88.6% AD ratio)"
             
-            # Более строгие условия входа для Bat
+            # Stricter entry conditions for Bat
             signals['entry_conditions']['ad_ratio_precision'] = (
                 abs(pattern.ad_ratio - self.bat_fib_ratios.AD_RETRACEMENT) < self.tolerance
             )
             
-            # Bat-специфичный timing
+            # Bat-specific timing
             signals['timing'] = {
-                'immediate': pattern.confidence_score > 0.90,  # Выше порог для Bat
+                'immediate': pattern.confidence_score > 0.90,  # Higher threshold for Bat
                 'wait_for_confirmation': 0.75 <= pattern.confidence_score <= 0.90,
                 'avoid': pattern.confidence_score < 0.75
             }
             
-            # Дополнительная информация о Bat паттерне
+            # Additional information about Bat pattern
             signals['bat_specifics'] = {
                 'ad_ratio': pattern.ad_ratio,
                 'ad_target': self.bat_fib_ratios.AD_RETRACEMENT,

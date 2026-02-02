@@ -1,7 +1,7 @@
 """
 Cypher Pattern - Professional Harmonic Pattern Detector.
 
-Enterprise Implementation: High-precision Cypher паттернов
+Enterprise Implementation: High-precision Cypher pattern detection
 using advanced Fibonacci analysis, real-time processing,
 and machine learning classification for professional crypto trading.
 
@@ -70,8 +70,8 @@ class CypherPattern(GartleyPattern):
     for real-time crypto trading systems.
     
     Features:
-    - Уникальная BC extension относительно XA
-    - CD retracement от XC вместо BC
+    - Unique BC extension relative to XA
+    - CD retracement from XC instead of BC
     - Advanced confidence scoring
     - Professional risk management
     - Multi-timeframe analysis
@@ -82,10 +82,10 @@ class CypherPattern(GartleyPattern):
         ```python
         detector = CypherPattern(tolerance=0.06, min_confidence=0.75)
         
-        # Детекция паттернов в OHLCV данных
+        # Detect patterns in OHLCV data
         patterns = detector.detect_patterns(ohlcv_data)
         
-        # Анализ конкретного паттерна
+        # Analyze a specific pattern
         if patterns:
             best_pattern = patterns[0]
             entry_signals = detector.get_entry_signals(best_pattern)
@@ -156,23 +156,23 @@ class CypherPattern(GartleyPattern):
             if xa_distance == 0 or xc_distance == 0:
                 return False
             
-            # AB must be in range 38.2% - 61.8% от XA
+            # AB must be in range 38.2% - 61.8% of XA
             ab_ratio = ab_distance / xa_distance
             if not (self.cypher_fib_ratios.AB_RETRACEMENT_MIN - self.tolerance <= 
                    ab_ratio <= 
                    self.cypher_fib_ratios.AB_RETRACEMENT_MAX + self.tolerance):
                 return False
             
-            # BC должно быть расширением XA (113% - 141.4%) - УНИКАЛЬНО для Cypher!
+            # BC should be an extension of XA (113% - 141.4%) - UNIQUE to Cypher!
             bc_extension = xc_distance / xa_distance
             if not (self.cypher_fib_ratios.BC_MIN_EXTENSION - self.tolerance <= 
                    bc_extension <= 
                    self.cypher_fib_ratios.BC_MAX_EXTENSION + self.tolerance):
-                # Проверяем альтернативный уровень 127.2%
+                # Check alternative level 127.2%
                 if not (abs(bc_extension - self.cypher_fib_ratios.BC_GOLDEN_EXTENSION) <= self.tolerance):
                     return False
             
-            # CD должно быть близко к 78.6% отката от XC (критично для Cypher)
+            # CD should be close to 78.6% retracement of XC (critical for Cypher)
             cd_retracement = cd_distance / xc_distance
             expected_cd_retracement = self.cypher_fib_ratios.CD_RETRACEMENT
             if abs(cd_retracement - expected_cd_retracement) > self.tolerance:
@@ -190,7 +190,7 @@ class CypherPattern(GartleyPattern):
         data: pd.DataFrame
     ) -> List[Tuple[PatternPoint, PatternPoint, PatternPoint, PatternPoint, PatternPoint]]:
         """
-        Поиск потенциальных 5-точечных паттернов Cypher (X-A-B-C-D).
+        Search for potential 5-point Cypher patterns (X-A-B-C-D).
         
         Optimized pattern matching with Cypher-specific
         constraints for high-probability setups.
@@ -235,7 +235,7 @@ class CypherPattern(GartleyPattern):
         timeframe: Optional[str]
     ) -> Optional[PatternResult]:
         """
-        Полная валидация и scoring паттерна Cypher.
+        Full validation and scoring of the Cypher pattern.
         
         Comprehensive validation with Cypher-specific
         scoring algorithms and unique ratio calculations.
@@ -247,7 +247,7 @@ class CypherPattern(GartleyPattern):
             xa_distance = abs(a.price - x.price)
             ab_distance = abs(b.price - a.price)
             bc_distance = abs(c.price - b.price)
-            xc_distance = abs(c.price - x.price)  # Важно для Cypher!
+            xc_distance = abs(c.price - x.price)  # Important for Cypher!
             cd_distance = abs(d.price - c.price)
             
             # Prevent division by zero
@@ -256,8 +256,8 @@ class CypherPattern(GartleyPattern):
             
             # Cypher-specific ratios
             ab_retracement = ab_distance / xa_distance
-            bc_extension_from_xa = xc_distance / xa_distance  # BC как расширение XA
-            cd_retracement_from_xc = cd_distance / xc_distance  # CD как откат от XC
+            bc_extension_from_xa = xc_distance / xa_distance  # BC as extension of XA
+            cd_retracement_from_xc = cd_distance / xc_distance  # CD as retracement from XC
             
             # Standard ratios for compatibility
             bc_ratio = bc_distance / ab_distance if ab_distance > 0 else 0
@@ -268,29 +268,29 @@ class CypherPattern(GartleyPattern):
             # Determine pattern type
             pattern_type = PatternType.BULLISH if a.price > x.price else PatternType.BEARISH
             
-            # Валидация Fibonacci ratios с Cypher-специфичными критериями
+            # Validate Fibonacci ratios with Cypher-specific criteria
             fib_scores = []
             
-            # AB должно быть 38.2% - 61.8% retracement of XA
+            # AB should be 38.2% - 61.8% retracement of XA
             ab_in_range = (self.cypher_fib_ratios.AB_RETRACEMENT_MIN <= 
                           ab_retracement <= 
                           self.cypher_fib_ratios.AB_RETRACEMENT_MAX)
             ab_score = 1.0 if ab_in_range else 0.0
             fib_scores.append(ab_score)
             
-            # BC должно быть 113% - 141.4% расширение XA (УНИКАЛЬНО для Cypher)
+            # BC should be 113% - 141.4% extension of XA (UNIQUE to Cypher)
             bc_in_range = (self.cypher_fib_ratios.BC_MIN_EXTENSION <= 
                           bc_extension_from_xa <= 
                           self.cypher_fib_ratios.BC_MAX_EXTENSION)
-            # Проверяем также альтернативный уровень 127.2%
+            # Also check alternative level 127.2%
             bc_golden = abs(bc_extension_from_xa - self.cypher_fib_ratios.BC_GOLDEN_EXTENSION) < self.tolerance
             bc_score = 1.0 if (bc_in_range or bc_golden) else 0.0
-            # Бонус за точное попадание в 127.2%
+            # Bonus for exact hit on 127.2%
             if bc_golden:
                 bc_score = min(1.0, bc_score + 0.2)
             fib_scores.append(bc_score)
             
-            # CD должно быть ~78.6% откат от XC (критично для Cypher!)
+            # CD should be ~78.6% retracement from XC (critical for Cypher!)
             cd_target = self.cypher_fib_ratios.CD_RETRACEMENT
             cd_score = 1.0 - abs(cd_retracement_from_xc - cd_target) / cd_target
             fib_scores.append(max(0, cd_score))
@@ -308,12 +308,12 @@ class CypherPattern(GartleyPattern):
             if validation_status == PatternValidation.INVALID:
                 return None
             
-            # Calculate confidence score с Cypher-специфичными весами
+            # Calculate confidence score with Cypher-specific weights
             confidence_score = self._calculate_cypher_confidence_score(
                 pattern_points, data, fib_scores, fibonacci_confluence
             )
             
-            # Calculate trading levels для Cypher паттерна
+            # Calculate trading levels for Cypher pattern
             entry_price, stop_loss, take_profits = self._calculate_cypher_trading_levels(
                 pattern_points, pattern_type
             )
@@ -330,7 +330,7 @@ class CypherPattern(GartleyPattern):
                     pattern_points, data
                 )
             
-            # Pattern strength analysis с Cypher-специфичными метриками
+            # Pattern strength analysis with Cypher-specific metrics
             pattern_strength = self._calculate_cypher_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
@@ -346,8 +346,8 @@ class CypherPattern(GartleyPattern):
                 validation_status=validation_status,
                 confidence_score=confidence_score,
                 ab_ratio=ab_retracement,
-                bc_ratio=bc_extension_from_xa,  # BC как расширение XA
-                cd_ratio=cd_retracement_from_xc,  # CD как откат от XC
+                bc_ratio=bc_extension_from_xa,  # BC as extension of XA
+                cd_ratio=cd_retracement_from_xc,  # CD as retracement from XC
                 ad_ratio=ad_ratio,
                 entry_price=entry_price,
                 stop_loss=stop_loss,
@@ -386,16 +386,16 @@ class CypherPattern(GartleyPattern):
         try:
             structure_score = 0.0
             
-            # 1. C должно быть значительно за пределами диапазона XA
+            # 1. C should be significantly beyond the XA range
             xa_distance = abs(a.price - x.price)
             xc_distance = abs(c.price - x.price)
             
             if xa_distance > 0:
                 extension_ratio = xc_distance / xa_distance
-                if extension_ratio > 1.1:  # C должно быть как минимум на 10% дальше A от X
+                if extension_ratio > 1.1:  # C should be at least 10% further than A from X
                     structure_score += 0.4
                     
-            # 2. D должно находиться между X и C (для правильного CD retracement)
+            # 2. D should be between X and C (for correct CD retracement)
             pattern_type = PatternType.BULLISH if a.price > x.price else PatternType.BEARISH
             
             if pattern_type == PatternType.BULLISH:
@@ -405,7 +405,7 @@ class CypherPattern(GartleyPattern):
                 if c.price < d.price < x.price:
                     structure_score += 0.3
                     
-            # 3. Временная последовательность должна показывать правильное развитие
+            # 3. Time sequence should show correct development
             time_intervals = [
                 a.index - x.index,
                 b.index - a.index, 
@@ -413,8 +413,8 @@ class CypherPattern(GartleyPattern):
                 d.index - c.index
             ]
             
-            # Проверка на разумные временные интервалы
-            if all(interval >= 2 for interval in time_intervals):  # Минимум 2 бара между точками
+            # Check for reasonable time intervals
+            if all(interval >= 2 for interval in time_intervals):  # Minimum 2 bars between points
                 structure_score += 0.3
                 
             return min(1.0, structure_score)
@@ -439,11 +439,11 @@ class CypherPattern(GartleyPattern):
             scores = []
             weights = []
             
-            # 1. Fibonacci accuracy (40% вес)
+            # 1. Fibonacci accuracy (40% weight)
             scores.append(fibonacci_confluence)
             weights.append(0.40)
             
-            # 2. BC extension precision (25% вес - уникально для Cypher)
+            # 2. BC extension precision (25% weight - unique to Cypher)
             x, a, b, c, d = pattern_points
             xa_distance = abs(a.price - x.price)
             xc_distance = abs(c.price - x.price)
@@ -452,7 +452,7 @@ class CypherPattern(GartleyPattern):
                 
                 # Check for hits on target extension levels
                 target_scores = []
-                for target in [1.13, 1.272, 1.414]:  # Ключевые уровни для Cypher
+                for target in [1.13, 1.272, 1.414]:  # Key levels for Cypher
                     target_score = 1.0 - abs(bc_extension - target) / target
                     target_scores.append(max(0, target_score))
                 bc_precision = max(target_scores) if target_scores else 0
@@ -462,7 +462,7 @@ class CypherPattern(GartleyPattern):
             else:
                 weights[0] += 0.25
             
-            # 3. CD retracement precision (20% вес)
+            # 3. CD retracement precision (20% weight)
             xc_distance = abs(c.price - x.price)
             cd_distance = abs(d.price - c.price)
             if xc_distance > 0:
@@ -473,12 +473,12 @@ class CypherPattern(GartleyPattern):
             else:
                 weights[0] += 0.20
             
-            # 4. Pattern structure quality (10% вес)
+            # 4. Pattern structure quality (10% weight)
             structure_quality = self._assess_cypher_structure(x, a, b, c, d)
             scores.append(structure_quality)
             weights.append(0.10)
             
-            # 5. Volume confirmation (5% вес, если доступно)
+            # 5. Volume confirmation (5% weight, if available)
             if self.enable_volume_analysis and 'volume' in data.columns:
                 volume_score = self._analyze_volume_confirmation(pattern_points, data)
                 scores.append(volume_score)
@@ -512,28 +512,28 @@ class CypherPattern(GartleyPattern):
             # Entry price at point D (completion)
             entry_price = d.price
             
-            # Stop loss calculation для Cypher паттерна
+            # Stop loss calculation for Cypher pattern
             if pattern_type == PatternType.BULLISH:
-                # Для bullish Cypher: SL ниже точки X
+                # For bullish Cypher: SL below point X
                 xa_range = a.price - x.price
                 stop_loss = x.price - (xa_range * 0.1)  # 10% buffer below X
                 
-                # Take Profit levels основанные на XC retracement
+                # Take Profit levels based on XC retracement
                 xc_range = c.price - x.price
-                tp1 = entry_price + (xc_range * 0.382)  # 38.2% от XC движения
-                tp2 = entry_price + (xc_range * 0.618)  # 61.8% от XC движения
-                tp3 = c.price  # Полный возврат к точке C
+                tp1 = entry_price + (xc_range * 0.382)  # 38.2% of XC movement
+                tp2 = entry_price + (xc_range * 0.618)  # 61.8% of XC movement
+                tp3 = c.price  # Full retracement to point C
                 
             else:  # BEARISH
-                # Для bearish Cypher: SL выше точки X
+                # For bearish Cypher: SL above point X
                 xa_range = x.price - a.price
                 stop_loss = x.price + (xa_range * 0.1)  # 10% buffer above X
                 
                 # Take profit levels (below entry)
                 xc_range = x.price - c.price
-                tp1 = entry_price - (xc_range * 0.382)  # 38.2% от XC движения
-                tp2 = entry_price - (xc_range * 0.618)  # 61.8% от XC движения
-                tp3 = c.price  # Полный возврат к точке C
+                tp1 = entry_price - (xc_range * 0.382)  # 38.2% of XC movement
+                tp2 = entry_price - (xc_range * 0.618)  # 61.8% of XC movement
+                tp3 = c.price  # Full retracement to point C
             
             return entry_price, stop_loss, (tp1, tp2, tp3)
             
@@ -550,12 +550,12 @@ class CypherPattern(GartleyPattern):
     ) -> float:
         """Calculate Cypher pattern strength with unique metrics."""
         try:
-            # Базовый расчет как у родительского класса
+            # Base calculation as in parent class
             base_strength = super()._calculate_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
             
-            # Cypher-специфичные дополнения
+            # Cypher-specific additions
             x, a, b, c, d = pattern_points
             
             # BC extension quality bonus
@@ -564,7 +564,7 @@ class CypherPattern(GartleyPattern):
             if xa_distance > 0:
                 bc_extension = xc_distance / xa_distance
                 
-                # Бонус за точное попадание в ключевые extension levels
+                # Bonus for exact hit on key extension levels
                 extension_bonus = 0.0
                 if abs(bc_extension - 1.272) < 0.05:  # Golden extension
                     extension_bonus = 0.15
@@ -579,7 +579,7 @@ class CypherPattern(GartleyPattern):
             if xc_distance > 0:
                 cd_retracement = cd_distance / xc_distance
                 cd_precision = 1.0 - abs(cd_retracement - self.cypher_fib_ratios.CD_RETRACEMENT) / self.cypher_fib_ratios.CD_RETRACEMENT
-                if cd_precision > 0.9:  # Высокая точность
+                if cd_precision > 0.9:  # High precision
                     precision_bonus = (cd_precision - 0.9) * 0.5
                     base_strength = min(1.0, base_strength + precision_bonus)
             
@@ -654,13 +654,13 @@ class CypherPattern(GartleyPattern):
         Cypher-specific entry analysis with unique structure focus.
         """
         try:
-            # Базовые сигналы от родительского класса
+            # Base signals from parent class
             signals = super().get_entry_signals(pattern)
             
-            # Cypher-специфичные модификации
+            # Cypher-specific modifications
             signals['entry_reason'] = f"Cypher {pattern.pattern_type.value} pattern completion (BC ext: {pattern.bc_ratio:.3f}, CD ret: {pattern.cd_ratio:.3f})"
             
-            # Cypher-специфичные условия входа
+            # Cypher-specific entry conditions
             signals['entry_conditions']['bc_extension_valid'] = (
                 self.cypher_fib_ratios.BC_MIN_EXTENSION <= pattern.bc_ratio <= self.cypher_fib_ratios.BC_MAX_EXTENSION or
                 abs(pattern.bc_ratio - self.cypher_fib_ratios.BC_GOLDEN_EXTENSION) < self.tolerance
@@ -669,14 +669,14 @@ class CypherPattern(GartleyPattern):
                 abs(pattern.cd_ratio - self.cypher_fib_ratios.CD_RETRACEMENT) < self.tolerance
             )
             
-            # Cypher-специфичный timing
+            # Cypher-specific timing
             signals['timing'] = {
                 'immediate': pattern.confidence_score > 0.85,
                 'wait_for_confirmation': 0.75 <= pattern.confidence_score <= 0.85,
                 'avoid': pattern.confidence_score < 0.75
             }
             
-            # Дополнительная информация о Cypher паттерне
+            # Additional information about Cypher pattern
             signals['cypher_specifics'] = {
                 'bc_extension_ratio': pattern.bc_ratio,
                 'bc_extension_type': self._classify_bc_extension(pattern.bc_ratio),

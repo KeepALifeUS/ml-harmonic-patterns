@@ -139,7 +139,7 @@ class TestPatternDetectors:
         assert detector.tolerance == 0.05
         assert detector.min_confidence == 0.70
         assert isinstance(detector.bat_fib_ratios, BatFibonacciRatios)
-        # AD retracement должен быть 88.6% для Bat (отличие от Gartley)
+        # AD retracement should be 88.6% for Bat (differs from Gartley)
         assert detector.bat_fib_ratios.AD_RETRACEMENT == 0.886
     
     def test_butterfly_pattern_initialization(self):
@@ -148,9 +148,9 @@ class TestPatternDetectors:
         
         assert detector.tolerance == 0.05
         assert isinstance(detector.butterfly_fib_ratios, ButterflyFibonacciRatios)
-        # AB retracement должен быть 78.6% для Butterfly
+        # AB retracement should be 78.6% for Butterfly
         assert detector.butterfly_fib_ratios.AB_RETRACEMENT == 0.786
-        # AD extensions для Butterfly
+        # AD extensions for Butterfly
         assert detector.butterfly_fib_ratios.AD_EXTENSION_1 == 1.272
         assert detector.butterfly_fib_ratios.AD_EXTENSION_2 == 1.618
     
@@ -158,9 +158,9 @@ class TestPatternDetectors:
         """Test Crab Pattern initialization."""
         detector = CrabPattern(tolerance=0.08, min_confidence=0.75)
         
-        assert detector.tolerance == 0.08  # Увеличенный tolerance для экстремальных паттернов
+        assert detector.tolerance == 0.08  # Increased tolerance for extreme patterns
         assert isinstance(detector.crab_fib_ratios, CrabFibonacciRatios)
-        # CD extensions для Crab должны быть экстремальными
+        # CD extensions for Crab should be extreme
         assert detector.crab_fib_ratios.CD_MIN_EXTENSION == 2.240
         assert detector.crab_fib_ratios.CD_MAX_EXTENSION == 3.618
     
@@ -170,7 +170,7 @@ class TestPatternDetectors:
         
         assert detector.tolerance == 0.06
         assert isinstance(detector.shark_fib_ratios, SharkFibonacciRatios)
-        # XA extension для Shark
+        # XA extension for Shark
         assert detector.shark_fib_ratios.XA_MIN_EXTENSION == 1.13
         assert detector.shark_fib_ratios.XA_MAX_EXTENSION == 1.618
     
@@ -180,15 +180,15 @@ class TestPatternDetectors:
         
         assert detector.tolerance == 0.06
         assert isinstance(detector.cypher_fib_ratios, CypherFibonacciRatios)
-        # BC extension от XA для Cypher (уникальная характеристика)
+        # BC extension from XA for Cypher (unique characteristic)
         assert detector.cypher_fib_ratios.BC_MIN_EXTENSION == 1.13
         assert detector.cypher_fib_ratios.BC_MAX_EXTENSION == 1.414
-        # CD retracement от XC
+        # CD retracement from XC
         assert detector.cypher_fib_ratios.CD_RETRACEMENT == 0.786
     
     def test_pattern_detection_with_insufficient_data(self, synthetic_data):
         """Test behavior with insufficient data."""
-        short_data = synthetic_data.head(10)  # Только 10 баров
+        short_data = synthetic_data.head(10)  # Only 10 bars
         
         detectors = [
             GartleyPattern(),
@@ -221,7 +221,7 @@ class TestPatternDetectors:
         data_with_nan.loc[data_with_nan.index[10], 'close'] = np.nan
         
         detector = GartleyPattern()
-        # Должен выдать warning и заполнить NaN значения
+        # Should issue a warning and fill NaN values
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             patterns = detector.detect_patterns(data_with_nan)
@@ -232,7 +232,7 @@ class TestPatternDetectors:
         """Test Fibonacci ratios immutability."""
         ratios = FibonacciRatios()
         
-        # Попытка изменить значения должна вызвать ошибку
+        # Attempting to change values should raise an error
         with pytest.raises(AttributeError):
             ratios.AB_RETRACEMENT = 0.5
     
@@ -248,13 +248,13 @@ class TestPatternDetectors:
         """Test result caching."""
         detector = GartleyPattern()
         
-        # Первый вызов
+        # First call
         patterns1 = detector.detect_patterns(synthetic_data, symbol="TEST", timeframe="1h")
         
-        # Второй вызов должен использовать кэш
+        # Second call should use cache
         with patch.object(detector, '_find_pivot_points') as mock_pivot:
             patterns2 = detector.detect_patterns(synthetic_data, symbol="TEST", timeframe="1h")
-            # Метод не должен вызываться, так как используется кэш
+            # Method should not be called since cache is used
             mock_pivot.assert_not_called()
         
         assert patterns1 == patterns2
@@ -263,11 +263,11 @@ class TestPatternDetectors:
         """Test cache clearing."""
         detector = GartleyPattern()
         
-        # Создаем кэш
+        # Create cache
         patterns = detector.detect_patterns(synthetic_data, symbol="TEST", timeframe="1h")
         assert detector.get_cache_stats()['patterns_cache_size'] > 0
         
-        # Очищаем кэш
+        # Clear cache
         detector.clear_cache()
         stats = detector.get_cache_stats()
         assert stats['patterns_cache_size'] == 0
@@ -287,10 +287,10 @@ class TestPatternSpecificBehavior:
         patterns = detector.detect_patterns(synthetic_data)
         
         for pattern in patterns:
-            # AD ratio должен быть близок к 78.6% для валидного Gartley
+            # AD ratio should be close to 78.6% for a valid Gartley
             assert isinstance(pattern.ad_ratio, float)
             if pattern.validation_status == PatternValidation.VALID:
-                # Проверяем что AD ratio в разумных пределах для Gartley
+                # Check that AD ratio is within reasonable limits for Gartley
                 assert 0.5 <= pattern.ad_ratio <= 1.2
     
     def test_bat_specific_validation(self, synthetic_data):
@@ -300,7 +300,7 @@ class TestPatternSpecificBehavior:
         
         for pattern in patterns:
             if pattern.validation_status == PatternValidation.VALID:
-                # AB must be in range 38.2% - 50% для Bat
+                # AB must be in range 38.2% - 50% for Bat
                 assert 0.3 <= pattern.ab_ratio <= 0.6
     
     def test_butterfly_ad_extensions(self, synthetic_data):
@@ -310,7 +310,7 @@ class TestPatternSpecificBehavior:
         
         for pattern in patterns:
             if pattern.validation_status == PatternValidation.VALID:
-                # AD должно быть расширением (> 1.0) для Butterfly
+                # AD should be an extension (> 1.0) for Butterfly
                 assert pattern.ad_ratio > 1.0
     
     def test_crab_extreme_extensions(self, synthetic_data):
@@ -320,7 +320,7 @@ class TestPatternSpecificBehavior:
         
         for pattern in patterns:
             if pattern.validation_status == PatternValidation.VALID:
-                # CD ratio должен быть экстремальным (> 2.0) для Crab
+                # CD ratio should be extreme (> 2.0) for Crab
                 assert pattern.cd_ratio > 2.0
     
     def test_shark_prz_analysis(self, synthetic_data):
@@ -330,11 +330,11 @@ class TestPatternSpecificBehavior:
         
         for pattern in patterns:
             if isinstance(pattern, SharkPatternResult):
-                # Shark должен иметь PRZ confluence
+                # Shark should have PRZ confluence
                 assert hasattr(pattern, 'prz_confluence')
                 assert 0.0 <= pattern.prz_confluence <= 1.0
                 
-                # Тест PRZ analysis
+                # Test PRZ analysis
                 prz_analysis = detector.analyze_prz_quality(pattern)
                 assert 'prz_confluence_score' in prz_analysis
                 assert 'prz_quality_rating' in prz_analysis
@@ -346,8 +346,8 @@ class TestPatternSpecificBehavior:
         
         for pattern in patterns:
             if pattern.validation_status == PatternValidation.VALID:
-                # BC ratio в Cypher представляет расширение от XA
-                assert pattern.bc_ratio > 1.0  # Должно быть расширением
+                # BC ratio in Cypher represents extension from XA
+                assert pattern.bc_ratio > 1.0  # Should be an extension
 
 
 class TestTradingSignals:
@@ -387,7 +387,7 @@ class TestTradingSignals:
         detector = GartleyPattern()
         signals = detector.get_entry_signals(mock_pattern)
         
-        # Проверяем основные компоненты сигналов
+        # Check main signal components
         assert 'action' in signals
         assert signals['action'] in ['BUY', 'SELL']
         assert 'entry_price' in signals
@@ -398,7 +398,7 @@ class TestTradingSignals:
         assert 'entry_conditions' in signals
         assert 'timing' in signals
         
-        # Проверяем условия входа
+        # Check entry conditions
         entry_conditions = signals['entry_conditions']
         assert 'min_confidence_met' in entry_conditions
         assert 'risk_reward_acceptable' in entry_conditions
@@ -418,7 +418,7 @@ class TestTradingSignals:
         assert 'leverage' in position_info
         assert 'max_loss' in position_info
         
-        # Risk amount должен быть 2% от баланса
+        # Risk amount should be 2% of balance
         assert position_info['risk_amount'] == 200.0
         assert position_info['max_loss'] == 200.0
     
@@ -434,11 +434,11 @@ class TestTradingSignals:
         assert 'metadata' in viz_data
         assert 'chart_title' in viz_data
         
-        # Проверяем точки паттерна
+        # Check pattern points
         pattern_points = viz_data['pattern_points']
         assert len(pattern_points) == 5  # X, A, B, C, D
         
-        # Проверяем торговые уровни
+        # Check trading levels
         trading_levels = viz_data['trading_levels']
         level_names = [level['name'] for level in trading_levels]
         assert 'Entry' in level_names
@@ -484,7 +484,7 @@ class TestUtilityFunctions:
     
     def test_pattern_filtering(self, mock_patterns):
         """Test pattern quality filtering."""
-        # Фильтруем с высокими требованиями
+        # Filter with high requirements
         filtered = filter_patterns_by_quality(
             mock_patterns,
             min_confidence=0.80,
@@ -492,7 +492,7 @@ class TestUtilityFunctions:
             max_risk_percent=12.0
         )
         
-        # Должны остаться только высококачественные паттерны
+        # Only high-quality patterns should remain
         assert len(filtered) < len(mock_patterns)
         
         for pattern in filtered:
@@ -532,7 +532,7 @@ class TestEdgeCases:
     
     def test_zero_division_protection(self):
         """Test division by zero protection."""
-        # Создаем данные где все цены одинаковые
+        # Create data where all prices are identical
         flat_data = pd.DataFrame({
             'open': [100.0] * 50,
             'high': [100.0] * 50,
@@ -542,28 +542,28 @@ class TestEdgeCases:
         })
         
         detector = GartleyPattern()
-        # Не должен упасть с ошибкой, должен вернуть пустой список
+        # Should not crash with error, should return empty list
         patterns = detector.detect_patterns(flat_data)
         assert patterns == []
     
     def test_extreme_volatility_data(self):
         """Test with extremely volatile data."""
         volatile_data = TestDataGenerator.generate_synthetic_ohlcv(
-            volatility=0.5  # 50% волатильность
+            volatility=0.5  # 50% volatility
         )
         
         detector = GartleyPattern()
-        # Должен корректно обработать даже экстремальные данные
+        # Should correctly handle even extreme data
         patterns = detector.detect_patterns(volatile_data)
         assert isinstance(patterns, list)
     
     def test_very_low_confidence_patterns(self):
         """Test with very low confidence threshold."""
-        detector = GartleyPattern(min_confidence=0.1)  # Очень низкий порог
+        detector = GartleyPattern(min_confidence=0.1)  # Very low threshold
         data = TestDataGenerator.generate_synthetic_ohlcv()
         
         patterns = detector.detect_patterns(data)
-        # Может найти больше паттернов, но все должны быть валидными
+        # May find more patterns, but all should be valid
         for pattern in patterns:
             assert pattern.confidence_score >= 0.1
     
@@ -574,9 +574,9 @@ class TestEdgeCases:
         detector = GartleyPattern()
         patterns = detector.detect_patterns(large_data)
         
-        # Проверяем что кэш не растет бесконтрольно
+        # Check that cache does not grow uncontrollably
         cache_stats = detector.get_cache_stats()
-        assert cache_stats['patterns_cache_size'] <= 10  # Разумное ограничение
+        assert cache_stats['patterns_cache_size'] <= 10  # Reasonable limit
     
     def test_thread_safety_simulation(self, synthetic_data):
         """Thread safety simulation (basic check)."""
@@ -588,7 +588,7 @@ class TestEdgeCases:
             patterns = detector.detect_patterns(synthetic_data, symbol=f"TEST{i}")
             results.append(patterns)
         
-        # Все результаты должны быть корректными
+        # All results should be correct
         for patterns in results:
             assert isinstance(patterns, list)
 
@@ -609,19 +609,19 @@ class TestPerformance:
         
         detection_time = end_time - start_time
         
-        # Детекция должна завершаться за разумное время (< 5 секунд для 500 баров)
+        # Detection should complete in reasonable time (< 5 seconds for 500 bars)
         assert detection_time < 5.0, f"Detection took {detection_time:.2f}s, which is too slow"
     
     def test_memory_usage_stability(self):
         """Test memory usage stability."""
         detector = GartleyPattern()
         
-        # Многократные детекции для проверки утечек памяти
+        # Multiple detections to check for memory leaks
         for i in range(10):
             data = TestDataGenerator.generate_synthetic_ohlcv(num_bars=100)
             patterns = detector.detect_patterns(data, symbol=f"TEST{i}")
             
-            # Очищаем кэш периодически
+            # Clear cache periodically
             if i % 3 == 0:
                 detector.clear_cache()
 

@@ -1,7 +1,7 @@
 """
 Crab Pattern - Professional Harmonic Pattern Detector.
 
-Enterprise Implementation: High-precision Crab паттернов
+Enterprise Implementation: High-precision Crab pattern detection
 using advanced Fibonacci analysis, real-time processing,
 and machine learning classification for professional crypto trading.
 
@@ -71,9 +71,9 @@ class CrabPattern(GartleyPattern):
     
     Features:
     - High-precision Fibonacci validation specific to Crab
-    - Real-time pattern scanning с экстремальными extensions
+    - Real-time pattern scanning with extreme extensions
     - Advanced confidence scoring
-    - Professional risk management для высокорискованных паттернов
+    - Professional risk management for high-risk patterns
     - Multi-timeframe analysis
     - Volume confirmation
     - ML-enhanced pattern recognition
@@ -82,10 +82,10 @@ class CrabPattern(GartleyPattern):
         ```python
         detector = CrabPattern(tolerance=0.08, min_confidence=0.80)
         
-        # Детекция паттернов в OHLCV данных
+        # Detect patterns in OHLCV data
         patterns = detector.detect_patterns(ohlcv_data)
         
-        # Анализ конкретного паттерна
+        # Analyze a specific pattern
         if patterns:
             best_pattern = patterns[0]
             entry_signals = detector.get_entry_signals(best_pattern)
@@ -95,12 +95,12 @@ class CrabPattern(GartleyPattern):
     
     def __init__(
         self,
-        tolerance: float = 0.08,  # Увеличен tolerance для Crab
-        min_confidence: float = 0.75,  # Повышен минимальный порог
+        tolerance: float = 0.08,  # Increased tolerance for Crab
+        min_confidence: float = 0.75,  # Raised minimum threshold
         enable_volume_analysis: bool = True,
         enable_ml_scoring: bool = True,
-        min_pattern_bars: int = 30,  # Увеличено для экстремальных паттернов
-        max_pattern_bars: int = 400  # Значительно увеличено
+        min_pattern_bars: int = 30,  # Increased for extreme patterns
+        max_pattern_bars: int = 400  # Significantly increased
     ):
         """
         Initialize Crab Pattern Detector.
@@ -157,21 +157,21 @@ class CrabPattern(GartleyPattern):
             if xa_distance == 0 or ab_distance == 0 or bc_distance == 0:
                 return False
             
-            # AB must be in range 38.2% - 61.8% от XA
+            # AB must be in range 38.2% - 61.8% of XA
             ab_ratio = ab_distance / xa_distance
             if not (self.crab_fib_ratios.AB_RETRACEMENT_MIN - self.tolerance <= 
                    ab_ratio <= 
                    self.crab_fib_ratios.AB_RETRACEMENT_MAX + self.tolerance):
                 return False
             
-            # CD должно быть экстремальным расширением 224% - 361.8% от BC
+            # CD should be an extreme extension 224% - 361.8% of BC
             cd_ratio = cd_distance / bc_distance
             if not (self.crab_fib_ratios.CD_MIN_EXTENSION - self.tolerance <= 
                    cd_ratio <= 
                    self.crab_fib_ratios.CD_MAX_EXTENSION + self.tolerance):
                 return False
             
-            # AD must be close to 161.8% расширению XA
+            # AD must be close to 161.8% extension of XA
             ad_ratio = ad_distance / xa_distance
             expected_ad_ratio = self.crab_fib_ratios.AD_EXTENSION
             if abs(ad_ratio - expected_ad_ratio) > self.tolerance:
@@ -180,12 +180,12 @@ class CrabPattern(GartleyPattern):
             # Additional check: D must be significantly OUTSIDE the X-A range
             pattern_type = PatternType.BULLISH if a.price > x.price else PatternType.BEARISH
             if pattern_type == PatternType.BULLISH:
-                # Для bullish: D должно быть значительно выше A
-                if d.price <= a.price * 1.1:  # Минимум 10% выше A
+                # For bullish: D should be significantly above A
+                if d.price <= a.price * 1.1:  # Minimum 10% above A
                     return False
             else:
-                # Для bearish: D должно быть значительно ниже A
-                if d.price >= a.price * 0.9:  # Минимум 10% ниже A
+                # For bearish: D should be significantly below A
+                if d.price >= a.price * 0.9:  # Minimum 10% below A
                     return False
                         
             return True
@@ -200,7 +200,7 @@ class CrabPattern(GartleyPattern):
         data: pd.DataFrame
     ) -> List[Tuple[PatternPoint, PatternPoint, PatternPoint, PatternPoint, PatternPoint]]:
         """
-        Поиск потенциальных 5-точечных паттернов Crab (X-A-B-C-D).
+        Search for potential 5-point Crab patterns (X-A-B-C-D).
         
         Optimized pattern matching with Crab-specific
         extreme extension constraints for high-probability setups.
@@ -211,7 +211,7 @@ class CrabPattern(GartleyPattern):
         if len(pivot_points) < 5:
             return potential_patterns
         
-        # Iterate over all possible 5-point combinations (увеличенный range)
+        # Iterate over all possible 5-point combinations (increased range)
         for i in range(len(pivot_points) - 4):
             for j in range(i + 1, min(i + self.max_pattern_bars // 6, len(pivot_points) - 3)):
                 for k in range(j + 1, min(j + self.max_pattern_bars // 6, len(pivot_points) - 2)):
@@ -245,7 +245,7 @@ class CrabPattern(GartleyPattern):
         timeframe: Optional[str]
     ) -> Optional[PatternResult]:
         """
-        Полная валидация и scoring паттерна Crab.
+        Full validation and scoring of the Crab pattern.
         
         Comprehensive validation with Crab-specific
         extreme extension scoring algorithms.
@@ -264,7 +264,7 @@ class CrabPattern(GartleyPattern):
             if xa_distance == 0 or ab_distance == 0 or bc_distance == 0:
                 return None
             
-            # Fibonacci ratios для валидации
+            # Fibonacci ratios for validation
             ab_ratio = ab_distance / xa_distance
             bc_ratio = bc_distance / ab_distance
             cd_ratio = cd_distance / bc_distance
@@ -273,34 +273,34 @@ class CrabPattern(GartleyPattern):
             # Determine pattern type
             pattern_type = PatternType.BULLISH if a.price > x.price else PatternType.BEARISH
             
-            # Валидация Fibonacci ratios с Crab-специфичными критериями
+            # Validate Fibonacci ratios with Crab-specific criteria
             fib_scores = []
             
-            # AB должно быть 38.2% - 61.8% от XA
+            # AB should be 38.2% - 61.8% of XA
             ab_in_range = (self.crab_fib_ratios.AB_RETRACEMENT_MIN <= 
                           ab_ratio <= 
                           self.crab_fib_ratios.AB_RETRACEMENT_MAX)
             ab_score = 1.0 if ab_in_range else 0.0
             fib_scores.append(ab_score)
             
-            # BC должно быть 38.2% - 88.6% от AB
+            # BC should be 38.2% - 88.6% of AB
             bc_in_range = (self.crab_fib_ratios.BC_MIN_RETRACEMENT <= 
                           bc_ratio <= 
                           self.crab_fib_ratios.BC_MAX_RETRACEMENT)
             bc_score = 1.0 if bc_in_range else 0.0
             fib_scores.append(bc_score)
             
-            # CD должно быть 224% - 361.8% от BC (экстремальное расширение!)
+            # CD should be 224% - 361.8% of BC (extreme extension!)
             cd_in_range = (self.crab_fib_ratios.CD_MIN_EXTENSION <= 
                           cd_ratio <= 
                           self.crab_fib_ratios.CD_MAX_EXTENSION)
             cd_score = 1.0 if cd_in_range else 0.0
-            # Бонус за попадание в "золотые" точки
+            # Bonus for hitting "golden" levels
             if abs(cd_ratio - 2.618) < self.tolerance or abs(cd_ratio - 3.618) < self.tolerance:
                 cd_score = min(1.0, cd_score + 0.3)
             fib_scores.append(cd_score)
             
-            # AD должно быть ~161.8% расширение от XA (критично для Crab)
+            # AD should be ~161.8% extension of XA (critical for Crab)
             ad_target = self.crab_fib_ratios.AD_EXTENSION
             ad_score = 1.0 - abs(ad_ratio - ad_target) / ad_target
             fib_scores.append(max(0, ad_score))
@@ -308,18 +308,18 @@ class CrabPattern(GartleyPattern):
             # Overall Fibonacci confluence score
             fibonacci_confluence = np.mean(fib_scores)
             
-            # Validate pattern (более строгие критерии для Crab)
+            # Validate pattern (stricter criteria for Crab)
             validation_status = self._determine_crab_validation_status(fib_scores)
             
             if validation_status == PatternValidation.INVALID:
                 return None
             
-            # Calculate confidence score с Crab-специфичными весами
+            # Calculate confidence score with Crab-specific weights
             confidence_score = self._calculate_crab_confidence_score(
                 pattern_points, data, fib_scores, fibonacci_confluence
             )
             
-            # Calculate trading levels для Crab паттерна
+            # Calculate trading levels for Crab pattern
             entry_price, stop_loss, take_profits = self._calculate_crab_trading_levels(
                 pattern_points, pattern_type
             )
@@ -336,7 +336,7 @@ class CrabPattern(GartleyPattern):
                     pattern_points, data
                 )
             
-            # Pattern strength analysis с Crab-специфичными метриками
+            # Pattern strength analysis with Crab-specific metrics
             pattern_strength = self._calculate_crab_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
@@ -381,8 +381,8 @@ class CrabPattern(GartleyPattern):
         avg_score = np.mean(fib_scores)
         min_score = min(fib_scores)
         
-        # Более строгие критерии для экстремального Crab паттерна
-        if avg_score >= 0.85 and min_score >= 0.7:  # Повышенные пороги
+        # Stricter criteria for the extreme Crab pattern
+        if avg_score >= 0.85 and min_score >= 0.7:  # Raised thresholds
             return PatternValidation.VALID
         elif avg_score >= 0.75 and min_score >= 0.5:
             return PatternValidation.MARGINAL
@@ -405,20 +405,20 @@ class CrabPattern(GartleyPattern):
             scores = []
             weights = []
             
-            # 1. Fibonacci accuracy (35% вес)
+            # 1. Fibonacci accuracy (35% weight)
             scores.append(fibonacci_confluence)
             weights.append(0.35)
             
-            # 2. CD extension quality (30% вес - критично для Crab!)
+            # 2. CD extension quality (30% weight - critical for Crab!)
             x, a, b, c, d = pattern_points
             bc_distance = abs(c.price - b.price)
             cd_distance = abs(d.price - c.price)
             if bc_distance > 0:
                 cd_ratio = cd_distance / bc_distance
                 
-                # Проверяем попадание в экстремальные extension levels
+                # Check for hits on extreme extension levels
                 extension_accuracy = 0.0
-                for target in [2.240, 2.618, 3.618]:  # Ключевые уровни для Crab
+                for target in [2.240, 2.618, 3.618]:  # Key levels for Crab
                     accuracy = 1.0 - abs(cd_ratio - target) / target
                     extension_accuracy = max(extension_accuracy, accuracy)
                 
@@ -427,7 +427,7 @@ class CrabPattern(GartleyPattern):
             else:
                 weights[0] += 0.30
             
-            # 3. AD extension precision (20% вес)
+            # 3. AD extension precision (20% weight)
             xa_distance = abs(a.price - x.price)
             ad_distance = abs(d.price - a.price)
             if xa_distance > 0:
@@ -438,12 +438,12 @@ class CrabPattern(GartleyPattern):
             else:
                 weights[0] += 0.20
             
-            # 4. Pattern extremity assessment (10% вес - уникально для Crab)
+            # 4. Pattern extremity assessment (10% weight - unique to Crab)
             extremity_score = self._assess_pattern_extremity(pattern_points)
             scores.append(extremity_score)
             weights.append(0.10)
             
-            # 5. Volume confirmation (5% вес, если доступно)
+            # 5. Volume confirmation (5% weight, if available)
             if self.enable_volume_analysis and 'volume' in data.columns:
                 volume_score = self._analyze_volume_confirmation(pattern_points, data)
                 scores.append(volume_score)
@@ -481,9 +481,9 @@ class CrabPattern(GartleyPattern):
             extremity_score = 0.0
             
             # Bonus for strong XA and CD movements
-            if xa_move > 0.10:  # Движение > 10%
+            if xa_move > 0.10:  # Movement > 10%
                 extremity_score += 0.3
-            if cd_move > 0.15:  # CD движение должно быть еще сильнее
+            if cd_move > 0.15:  # CD movement should be even stronger
                 extremity_score += 0.4
                 
             # Bonus for large time span
@@ -514,28 +514,28 @@ class CrabPattern(GartleyPattern):
             # Entry price at point D (completion)
             entry_price = d.price
             
-            # Stop loss calculation для Crab паттерна (консервативный)
+            # Stop loss calculation for Crab pattern (conservative)
             if pattern_type == PatternType.BULLISH:
-                # Для bullish Crab: SL ниже точки C с большим буфером
+                # For bullish Crab: SL below point C with large buffer
                 bc_range = c.price - b.price
-                stop_loss = c.price - (bc_range * 0.2)  # 20% buffer ниже C
+                stop_loss = c.price - (bc_range * 0.2)  # 20% buffer below C
                 
-                # Take Profit levels с учетом экстремального движения (консервативные)
+                # Take Profit levels considering extreme movement (conservative)
                 cd_range = d.price - c.price
-                tp1 = entry_price - (cd_range * 0.382)  # Возврат на 38.2% CD
-                tp2 = entry_price - (cd_range * 0.618)  # Возврат на 61.8% CD  
-                tp3 = c.price  # Полный возврат к точке C
+                tp1 = entry_price - (cd_range * 0.382)  # Retracement to 38.2% CD
+                tp2 = entry_price - (cd_range * 0.618)  # Retracement to 61.8% CD  
+                tp3 = c.price  # Full retracement to point C
                 
             else:  # BEARISH
-                # Для bearish Crab: SL выше точки C
+                # For bearish Crab: SL above point C
                 bc_range = b.price - c.price
-                stop_loss = c.price + (bc_range * 0.2)  # 20% buffer выше C
+                stop_loss = c.price + (bc_range * 0.2)  # 20% buffer above C
                 
                 # Take profit levels (above entry)
                 cd_range = c.price - d.price
-                tp1 = entry_price + (cd_range * 0.382)  # Возврат на 38.2% CD
-                tp2 = entry_price + (cd_range * 0.618)  # Возврат на 61.8% CD
-                tp3 = c.price  # Полный возврат к точке C
+                tp1 = entry_price + (cd_range * 0.382)  # Retracement to 38.2% CD
+                tp2 = entry_price + (cd_range * 0.618)  # Retracement to 61.8% CD
+                tp3 = c.price  # Full retracement to point C
             
             return entry_price, stop_loss, (tp1, tp2, tp3)
             
@@ -552,12 +552,12 @@ class CrabPattern(GartleyPattern):
     ) -> float:
         """Calculate Crab pattern strength with extreme metrics."""
         try:
-            # Базовый расчет как у родительского класса
+            # Base calculation as in parent class
             base_strength = super()._calculate_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
             
-            # Crab-специфичные дополнения
+            # Crab-specific additions
             x, a, b, c, d = pattern_points
             
             # Extension extremity bonus
@@ -566,16 +566,16 @@ class CrabPattern(GartleyPattern):
             if bc_distance > 0:
                 cd_ratio = cd_distance / bc_distance
                 
-                # Бонус за попадание в экстремальные уровни
+                # Bonus for hitting extreme levels
                 extremity_bonus = 0.0
-                if 2.5 <= cd_ratio <= 3.7:  # Экстремальная зона
+                if 2.5 <= cd_ratio <= 3.7:  # Extreme zone
                     extremity_bonus = 0.2
-                elif 2.2 <= cd_ratio <= 2.5:  # Умеренная зона
+                elif 2.2 <= cd_ratio <= 2.5:  # Moderate zone
                     extremity_bonus = 0.1
                     
                 base_strength = min(1.0, base_strength + extremity_bonus)
             
-            # Volume intensity bonus (Crab требует сильного volume на экстремумах)
+            # Volume intensity bonus (Crab requires strong volume at extremes)
             if volume_confirmation > 0.7:
                 volume_bonus = (volume_confirmation - 0.7) * 0.5
                 base_strength = min(1.0, base_strength + volume_bonus)
@@ -652,13 +652,13 @@ class CrabPattern(GartleyPattern):
         Crab-specific entry analysis with extreme extension focus.
         """
         try:
-            # Базовые сигналы от родительского класса
+            # Base signals from parent class
             signals = super().get_entry_signals(pattern)
             
-            # Crab-специфичные модификации
+            # Crab-specific modifications
             signals['entry_reason'] = f"Crab {pattern.pattern_type.value} pattern completion (extreme CD: {pattern.cd_ratio:.3f}x)"
             
-            # Очень строгие условия входа для Crab
+            # Very strict entry conditions for Crab
             signals['entry_conditions']['cd_extension_extreme'] = (
                 self.crab_fib_ratios.CD_MIN_EXTENSION <= pattern.cd_ratio <= self.crab_fib_ratios.CD_MAX_EXTENSION
             )
@@ -667,14 +667,14 @@ class CrabPattern(GartleyPattern):
             )
             signals['entry_conditions']['high_confidence_required'] = pattern.confidence_score >= 0.80
             
-            # Crab-специфичный timing (самые строгие пороги)
+            # Crab-specific timing (strictest thresholds)
             signals['timing'] = {
-                'immediate': pattern.confidence_score > 0.90,  # Очень высокий порог
+                'immediate': pattern.confidence_score > 0.90,  # Very high threshold
                 'wait_for_confirmation': 0.80 <= pattern.confidence_score <= 0.90,
                 'avoid': pattern.confidence_score < 0.80
             }
             
-            # Дополнительная информация о Crab паттерне
+            # Additional information about Crab pattern
             signals['crab_specifics'] = {
                 'cd_ratio': pattern.cd_ratio,
                 'cd_extension_level': self._classify_cd_extension(pattern.cd_ratio),
@@ -684,7 +684,7 @@ class CrabPattern(GartleyPattern):
                     pattern.point_x, pattern.point_a, pattern.point_b, 
                     pattern.point_c, pattern.point_d
                 )),
-                'risk_level': 'EXTREME',  # Crab всегда высокорискованный
+                'risk_level': 'EXTREME',  # Crab is always high-risk
                 'pattern_quality': 'EXTREME' if pattern.confidence_score > 0.85 else 'HIGH'
             }
             

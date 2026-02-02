@@ -1,7 +1,7 @@
 """
 Butterfly Pattern - Professional Harmonic Pattern Detector.
 
-Enterprise Implementation: High-precision Butterfly паттернов
+Enterprise Implementation: High-precision Butterfly pattern detection
 using advanced Fibonacci analysis, real-time processing,
 and machine learning classification for professional crypto trading.
 
@@ -72,7 +72,7 @@ class ButterflyPattern(GartleyPattern):
     Features:
     - High-precision Fibonacci validation specific to Butterfly
     - Real-time pattern scanning
-    - Advanced confidence scoring с расширенным AD анализом
+    - Advanced confidence scoring with extended AD analysis
     - Professional risk management
     - Multi-timeframe analysis
     - Volume confirmation
@@ -82,10 +82,10 @@ class ButterflyPattern(GartleyPattern):
         ```python
         detector = ButterflyPattern(tolerance=0.05, min_confidence=0.75)
         
-        # Детекция паттернов в OHLCV данных
+        # Detect patterns in OHLCV data
         patterns = detector.detect_patterns(ohlcv_data)
-        
-        # Анализ конкретного паттерна
+
+        # Analyze a specific pattern
         if patterns:
             best_pattern = patterns[0]
             entry_signals = detector.get_entry_signals(best_pattern)
@@ -99,8 +99,8 @@ class ButterflyPattern(GartleyPattern):
         min_confidence: float = 0.70,
         enable_volume_analysis: bool = True,
         enable_ml_scoring: bool = True,
-        min_pattern_bars: int = 25,  # Увеличено для Butterfly
-        max_pattern_bars: int = 300  # Увеличено для расширенных паттернов
+        min_pattern_bars: int = 25,  # Increased for Butterfly
+        max_pattern_bars: int = 300  # Increased for extended patterns
     ):
         """
         Initialize Butterfly Pattern Detector.
@@ -155,13 +155,13 @@ class ButterflyPattern(GartleyPattern):
             if xa_distance == 0:
                 return False
             
-            # AB должно быть близко к 78.6% от XA (критично для Butterfly)
+            # AB should be close to 78.6% of XA (critical for Butterfly)
             ab_ratio = ab_distance / xa_distance
             expected_ab_ratio = self.butterfly_fib_ratios.AB_RETRACEMENT
             if abs(ab_ratio - expected_ab_ratio) > self.tolerance:
                 return False
             
-            # AD должно быть расширением XA (127.2% или 161.8%)
+            # AD should be an extension of XA (127.2% or 161.8%)
             ad_ratio = ad_distance / xa_distance
             target_1 = self.butterfly_fib_ratios.AD_EXTENSION_1
             target_2 = self.butterfly_fib_ratios.AD_EXTENSION_2
@@ -173,11 +173,11 @@ class ButterflyPattern(GartleyPattern):
             # Additional check: D must be OUTSIDE the X-A range
             if pattern_type := PatternType.BULLISH if a.price > x.price else PatternType.BEARISH:
                 if pattern_type == PatternType.BULLISH:
-                    # Для bullish: D должно быть выше A
+                    # For bullish: D should be above A
                     if d.price <= a.price:
                         return False
                 else:
-                    # Для bearish: D должно быть ниже A
+                    # For bearish: D should be below A
                     if d.price >= a.price:
                         return False
                         
@@ -193,7 +193,7 @@ class ButterflyPattern(GartleyPattern):
         data: pd.DataFrame
     ) -> List[Tuple[PatternPoint, PatternPoint, PatternPoint, PatternPoint, PatternPoint]]:
         """
-        Поиск потенциальных 5-точечных паттернов Butterfly (X-A-B-C-D).
+        Search for potential 5-point Butterfly patterns (X-A-B-C-D).
         
         Optimized pattern matching with Butterfly-specific
         constraints for high-probability setups.
@@ -238,7 +238,7 @@ class ButterflyPattern(GartleyPattern):
         timeframe: Optional[str]
     ) -> Optional[PatternResult]:
         """
-        Полная валидация и scoring паттерна Butterfly.
+        Full validation and scoring of the Butterfly pattern.
         
         Comprehensive validation with Butterfly-specific
         scoring algorithms and extended AD analysis.
@@ -257,7 +257,7 @@ class ButterflyPattern(GartleyPattern):
             if xa_distance == 0 or ab_distance == 0:
                 return None
             
-            # Fibonacci ratios для валидации
+            # Fibonacci ratios for validation
             ab_ratio = ab_distance / xa_distance
             bc_ratio = bc_distance / ab_distance if ab_distance > 0 else 0
             cd_ratio = cd_distance / bc_distance if bc_distance > 0 else 0
@@ -266,34 +266,34 @@ class ButterflyPattern(GartleyPattern):
             # Determine pattern type
             pattern_type = PatternType.BULLISH if a.price > x.price else PatternType.BEARISH
             
-            # Валидация Fibonacci ratios с Butterfly-специфичными критериями
+            # Validate Fibonacci ratios with Butterfly-specific criteria
             fib_scores = []
-            
-            # AB должно быть ~78.6% от XA (критично для Butterfly)
+
+            # AB should be ~78.6% of XA (critical for Butterfly)
             ab_target = self.butterfly_fib_ratios.AB_RETRACEMENT
             ab_score = 1.0 - abs(ab_ratio - ab_target) / ab_target
             fib_scores.append(max(0, ab_score))
             
-            # BC должно быть 38.2% - 88.6% от AB
+            # BC should be 38.2% - 88.6% of AB
             bc_in_range = (self.butterfly_fib_ratios.BC_MIN_RETRACEMENT <= 
                           bc_ratio <= 
                           self.butterfly_fib_ratios.BC_MAX_RETRACEMENT)
             bc_score = 1.0 if bc_in_range else 0.0
             fib_scores.append(bc_score)
             
-            # CD должно быть 161.8% - 261.8% от BC
+            # CD should be 161.8% - 261.8% of BC
             cd_in_range = (self.butterfly_fib_ratios.CD_MIN_EXTENSION <= 
                           cd_ratio <= 
                           self.butterfly_fib_ratios.CD_MAX_EXTENSION)
             cd_score = 1.0 if cd_in_range else 0.0
             fib_scores.append(cd_score)
             
-            # AD должно быть 127.2% или 161.8% расширение от XA (критично для Butterfly)
+            # AD should be 127.2% or 161.8% extension of XA (critical for Butterfly)
             target_1 = self.butterfly_fib_ratios.AD_EXTENSION_1
             target_2 = self.butterfly_fib_ratios.AD_EXTENSION_2
             score_1 = 1.0 - abs(ad_ratio - target_1) / target_1
             score_2 = 1.0 - abs(ad_ratio - target_2) / target_2
-            ad_score = max(score_1, score_2)  # Берем лучший из двух вариантов
+            ad_score = max(score_1, score_2)  # Take the best of two variants
             fib_scores.append(max(0, ad_score))
             
             # Overall Fibonacci confluence score
@@ -305,12 +305,12 @@ class ButterflyPattern(GartleyPattern):
             if validation_status == PatternValidation.INVALID:
                 return None
             
-            # Calculate confidence score с Butterfly-специфичными весами
+            # Calculate confidence score with Butterfly-specific weights
             confidence_score = self._calculate_butterfly_confidence_score(
                 pattern_points, data, fib_scores, fibonacci_confluence
             )
             
-            # Calculate trading levels для Butterfly паттерна
+            # Calculate trading levels for Butterfly pattern
             entry_price, stop_loss, take_profits = self._calculate_butterfly_trading_levels(
                 pattern_points, pattern_type
             )
@@ -327,7 +327,7 @@ class ButterflyPattern(GartleyPattern):
                     pattern_points, data
                 )
             
-            # Pattern strength analysis с Butterfly-специфичными метриками
+            # Pattern strength analysis with Butterfly-specific metrics
             pattern_strength = self._calculate_butterfly_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
@@ -383,11 +383,11 @@ class ButterflyPattern(GartleyPattern):
             scores = []
             weights = []
             
-            # 1. Fibonacci accuracy (40% вес)
+            # 1. Fibonacci accuracy (40% weight)
             scores.append(fibonacci_confluence)
             weights.append(0.40)
             
-            # 2. AB ratio precision (25% вес - критично для Butterfly)
+            # 2. AB ratio precision (25% weight - critical for Butterfly)
             x, a, b, c, d = pattern_points
             xa_distance = abs(a.price - x.price)
             ab_distance = abs(b.price - a.price)
@@ -399,12 +399,12 @@ class ButterflyPattern(GartleyPattern):
             else:
                 weights[0] += 0.25
             
-            # 3. AD extension quality (20% вес - уникальная характеристика Butterfly)
+            # 3. AD extension quality (20% weight - unique Butterfly characteristic)
             if xa_distance > 0:
                 ad_distance = abs(d.price - a.price)
                 ad_ratio = ad_distance / xa_distance
                 
-                # Проверяем оба возможных target уровня
+                # Check both possible target levels
                 target_1_score = 1.0 - abs(ad_ratio - self.butterfly_fib_ratios.AD_EXTENSION_1) / self.butterfly_fib_ratios.AD_EXTENSION_1
                 target_2_score = 1.0 - abs(ad_ratio - self.butterfly_fib_ratios.AD_EXTENSION_2) / self.butterfly_fib_ratios.AD_EXTENSION_2
                 ad_extension_score = max(target_1_score, target_2_score)
@@ -414,12 +414,12 @@ class ButterflyPattern(GartleyPattern):
             else:
                 weights[0] += 0.20
             
-            # 4. Pattern symmetry (10% вес)
+            # 4. Pattern symmetry (10% weight)
             symmetry_score = self._calculate_pattern_symmetry(pattern_points)
             scores.append(symmetry_score)
             weights.append(0.10)
             
-            # 5. Volume confirmation (5% вес, если доступно)
+            # 5. Volume confirmation (5% weight, if available)
             if self.enable_volume_analysis and 'volume' in data.columns:
                 volume_score = self._analyze_volume_confirmation(pattern_points, data)
                 scores.append(volume_score)
@@ -453,26 +453,26 @@ class ButterflyPattern(GartleyPattern):
             # Entry price at point D (completion)
             entry_price = d.price
             
-            # Stop loss calculation для Butterfly паттерна
+            # Stop loss calculation for Butterfly pattern
             if pattern_type == PatternType.BULLISH:
-                # Для bullish Butterfly: SL немного выше точки C (более агрессивно)
-                stop_loss = c.price + abs(c.price - b.price) * 0.1  # 10% buffer выше C
-                
-                # Take Profit levels с учетом расширенного движения
+                # For bullish Butterfly: SL slightly above point C (more aggressive)
+                stop_loss = c.price + abs(c.price - b.price) * 0.1  # 10% buffer above C
+
+                # Take Profit levels considering extended movement
                 xa_range = a.price - x.price
-                tp1 = entry_price - (xa_range * 0.382)  # Возврат к 38.2% XA
-                tp2 = entry_price - (xa_range * 0.618)  # Возврат к 61.8% XA  
-                tp3 = entry_price - (xa_range * 0.786)  # Возврат к 78.6% XA
-                
+                tp1 = entry_price - (xa_range * 0.382)  # Retracement to 38.2% XA
+                tp2 = entry_price - (xa_range * 0.618)  # Retracement to 61.8% XA
+                tp3 = entry_price - (xa_range * 0.786)  # Retracement to 78.6% XA
+
             else:  # BEARISH
-                # Для bearish Butterfly: SL немного ниже точки C
-                stop_loss = c.price - abs(b.price - c.price) * 0.1  # 10% buffer ниже C
-                
+                # For bearish Butterfly: SL slightly below point C
+                stop_loss = c.price - abs(b.price - c.price) * 0.1  # 10% buffer below C
+
                 # Take profit levels (above entry)
                 xa_range = x.price - a.price
-                tp1 = entry_price + (xa_range * 0.382)  # Возврат к 38.2% XA
-                tp2 = entry_price + (xa_range * 0.618)  # Возврат к 61.8% XA
-                tp3 = entry_price + (xa_range * 0.786)  # Возврат к 78.6% XA
+                tp1 = entry_price + (xa_range * 0.382)  # Retracement to 38.2% XA
+                tp2 = entry_price + (xa_range * 0.618)  # Retracement to 61.8% XA
+                tp3 = entry_price + (xa_range * 0.786)  # Retracement to 78.6% XA
             
             return entry_price, stop_loss, (tp1, tp2, tp3)
             
@@ -489,26 +489,26 @@ class ButterflyPattern(GartleyPattern):
     ) -> float:
         """Calculate Butterfly pattern strength with specific metrics."""
         try:
-            # Базовый расчет как у родительского класса
+            # Base calculation as in parent class
             base_strength = super()._calculate_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
             
-            # Butterfly-специфичные дополнения
+            # Butterfly-specific additions
             x, a, b, c, d = pattern_points
             
-            # Extension quality bonus (Butterfly уникален расширением AD)
+            # Extension quality bonus (Butterfly is unique with AD extension)
             xa_distance = abs(a.price - x.price)
             ad_distance = abs(d.price - a.price)
             if xa_distance > 0:
                 ad_ratio = ad_distance / xa_distance
                 
-                # Бонус за точное попадание в целевые extension levels
+                # Bonus for exact hit on target extension levels
                 target_1_accuracy = 1.0 - abs(ad_ratio - self.butterfly_fib_ratios.AD_EXTENSION_1) / self.butterfly_fib_ratios.AD_EXTENSION_1
                 target_2_accuracy = 1.0 - abs(ad_ratio - self.butterfly_fib_ratios.AD_EXTENSION_2) / self.butterfly_fib_ratios.AD_EXTENSION_2
                 best_accuracy = max(target_1_accuracy, target_2_accuracy)
                 
-                if best_accuracy > 0.9:  # Высокая точность
+                if best_accuracy > 0.9:  # High precision
                     extension_bonus = (best_accuracy - 0.9) * 0.5
                     base_strength = min(1.0, base_strength + extension_bonus)
             
@@ -584,30 +584,30 @@ class ButterflyPattern(GartleyPattern):
         Butterfly-specific entry analysis with enhanced extension focus.
         """
         try:
-            # Базовые сигналы от родительского класса
+            # Base signals from parent class
             signals = super().get_entry_signals(pattern)
-            
-            # Butterfly-специфичные модификации
+
+            # Butterfly-specific modifications
             signals['entry_reason'] = f"Butterfly {pattern.pattern_type.value} pattern completion (AD extension: {pattern.ad_ratio:.3f})"
             
-            # Более агрессивные условия входа для Butterfly (из-за extension)
+            # More aggressive entry conditions for Butterfly (due to extension)
             signals['entry_conditions']['ab_ratio_precision'] = (
                 abs(pattern.ab_ratio - self.butterfly_fib_ratios.AB_RETRACEMENT) < self.tolerance
             )
             
-            # Проверка AD extension quality
+            # Check AD extension quality
             target_1_match = abs(pattern.ad_ratio - self.butterfly_fib_ratios.AD_EXTENSION_1) < self.tolerance
             target_2_match = abs(pattern.ad_ratio - self.butterfly_fib_ratios.AD_EXTENSION_2) < self.tolerance
             signals['entry_conditions']['ad_extension_valid'] = target_1_match or target_2_match
             
-            # Butterfly-специфичный timing (более агрессивные пороги)
+            # Butterfly-specific timing (more aggressive thresholds)
             signals['timing'] = {
-                'immediate': pattern.confidence_score > 0.88,  # Высший порог
+                'immediate': pattern.confidence_score > 0.88,  # Highest threshold
                 'wait_for_confirmation': 0.75 <= pattern.confidence_score <= 0.88,
                 'avoid': pattern.confidence_score < 0.75
             }
             
-            # Дополнительная информация о Butterfly паттерне
+            # Additional information about Butterfly pattern
             signals['butterfly_specifics'] = {
                 'ad_ratio': pattern.ad_ratio,
                 'ad_extension_1': self.butterfly_fib_ratios.AD_EXTENSION_1,

@@ -1,7 +1,7 @@
 """
 Shark Pattern - Professional Harmonic Pattern Detector.
 
-Enterprise Implementation: High-precision Shark паттернов
+Enterprise Implementation: High-precision Shark pattern detection
 using advanced Fibonacci analysis, real-time processing,
 and machine learning classification for professional crypto trading.
 
@@ -58,9 +58,9 @@ class SharkFibonacciRatios:
     BC_MAX_EXTENSION: float = 2.618    # Maximum AB extension
     
     # Critical levels for Shark PRZ (Potential Reversal Zone)
-    PRZ_CONFLUENCE_88_6: float = 0.886  # 88.6% от OX
-    PRZ_CONFLUENCE_113: float = 1.13    # 113% от AB
-    PRZ_CONFLUENCE_161_8: float = 1.618 # 161.8% от AB
+    PRZ_CONFLUENCE_88_6: float = 0.886  # 88.6% of OX
+    PRZ_CONFLUENCE_113: float = 1.13    # 113% of AB
+    PRZ_CONFLUENCE_161_8: float = 1.618 # 161.8% of AB
     
     # Allowed deviations for validation (in production systems)
     TOLERANCE: float = 0.06  # 6% tolerance
@@ -86,8 +86,8 @@ class SharkPattern(GartleyPattern):
     for real-time crypto trading systems.
     
     Features:
-    - Уникальная 5-точечная структура O-X-A-B-C
-    - Потенциальная зона разворота (PRZ) analysis
+    - Unique 5-point O-X-A-B-C structure
+    - Potential Reversal Zone (PRZ) analysis
     - Advanced Fibonacci confluence detection
     - Professional risk management
     - Multi-timeframe analysis
@@ -98,10 +98,10 @@ class SharkPattern(GartleyPattern):
         ```python
         detector = SharkPattern(tolerance=0.06, min_confidence=0.75)
         
-        # Детекция паттернов в OHLCV данных
+        # Detect patterns in OHLCV data
         patterns = detector.detect_patterns(ohlcv_data)
         
-        # Анализ конкретного паттерна
+        # Analyze a specific pattern
         if patterns:
             best_pattern = patterns[0]
             entry_signals = detector.get_entry_signals(best_pattern)
@@ -180,21 +180,21 @@ class SharkPattern(GartleyPattern):
                 if not (o.price > x.price > a.price and a.price < b.price > c.price):
                     return False
             
-            # XA должно быть расширением OX (113% - 161.8%)
+            # XA should be an extension of OX (113% - 161.8%)
             xa_extension = xa_distance / ox_distance
             if not (self.shark_fib_ratios.XA_MIN_EXTENSION - self.tolerance <= 
                    xa_extension <= 
                    self.shark_fib_ratios.XA_MAX_EXTENSION + self.tolerance):
                 return False
             
-            # AB должно быть откатом XA (38.2% - 61.8%)
+            # AB should be a retracement of XA (38.2% - 61.8%)
             ab_retracement = ab_distance / xa_distance
             if not (self.shark_fib_ratios.AB_RETRACEMENT_MIN - self.tolerance <= 
                    ab_retracement <= 
                    self.shark_fib_ratios.AB_RETRACEMENT_MAX + self.tolerance):
                 return False
             
-            # BC должно быть расширением AB (113% - 261.8%)
+            # BC should be an extension of AB (113% - 261.8%)
             bc_extension = bc_distance / ab_distance
             if not (self.shark_fib_ratios.BC_MIN_EXTENSION - self.tolerance <= 
                    bc_extension <= 
@@ -213,7 +213,7 @@ class SharkPattern(GartleyPattern):
         data: pd.DataFrame
     ) -> List[Tuple[PatternPoint, PatternPoint, PatternPoint, PatternPoint, PatternPoint]]:
         """
-        Поиск потенциальных 5-точечных паттернов Shark (O-X-A-B-C).
+        Search for potential 5-point Shark patterns (O-X-A-B-C).
         
         Optimized pattern matching with Shark-specific
         constraints for high-probability setups.
@@ -258,7 +258,7 @@ class SharkPattern(GartleyPattern):
         timeframe: Optional[str]
     ) -> Optional[SharkPatternResult]:
         """
-        Полная валидация и scoring паттерна Shark.
+        Full validation and scoring of the Shark pattern.
         
         Comprehensive validation with Shark-specific
         PRZ analysis and confluence scoring.
@@ -284,29 +284,29 @@ class SharkPattern(GartleyPattern):
             # Determine pattern type
             pattern_type = PatternType.BULLISH if x.price > o.price else PatternType.BEARISH
             
-            # Валидация Fibonacci ratios с Shark-специфичными критериями
+            # Validate Fibonacci ratios with Shark-specific criteria
             fib_scores = []
             
-            # XA должно быть 113% - 161.8% расширение OX
+            # XA should be 113% - 161.8% extension of OX
             xa_in_range = (self.shark_fib_ratios.XA_MIN_EXTENSION <= 
                           xa_extension <= 
                           self.shark_fib_ratios.XA_MAX_EXTENSION)
             xa_score = 1.0 if xa_in_range else 0.0
             fib_scores.append(xa_score)
             
-            # AB должно быть 38.2% - 61.8% retracement of XA
+            # AB should be 38.2% - 61.8% retracement of XA
             ab_in_range = (self.shark_fib_ratios.AB_RETRACEMENT_MIN <= 
                           ab_retracement <= 
                           self.shark_fib_ratios.AB_RETRACEMENT_MAX)
             ab_score = 1.0 if ab_in_range else 0.0
             fib_scores.append(ab_score)
             
-            # BC должно быть 113% - 261.8% расширение AB
+            # BC should be 113% - 261.8% extension of AB
             bc_in_range = (self.shark_fib_ratios.BC_MIN_EXTENSION <= 
                           bc_extension <= 
                           self.shark_fib_ratios.BC_MAX_EXTENSION)
             bc_score = 1.0 if bc_in_range else 0.0
-            # Бонус за классические уровни
+            # Bonus for classic levels
             if abs(bc_extension - 1.618) < self.tolerance or abs(bc_extension - 2.618) < self.tolerance:
                 bc_score = min(1.0, bc_score + 0.2)
             fib_scores.append(bc_score)
@@ -324,12 +324,12 @@ class SharkPattern(GartleyPattern):
             if validation_status == PatternValidation.INVALID:
                 return None
             
-            # Calculate confidence score с Shark-специфичными весами
+            # Calculate confidence score with Shark-specific weights
             confidence_score = self._calculate_shark_confidence_score(
                 pattern_points, data, fib_scores, fibonacci_confluence
             )
             
-            # Calculate trading levels для Shark паттерна
+            # Calculate trading levels for Shark pattern
             entry_price, stop_loss, take_profits = self._calculate_shark_trading_levels(
                 pattern_points, pattern_type
             )
@@ -346,27 +346,27 @@ class SharkPattern(GartleyPattern):
                     pattern_points, data
                 )
             
-            # Pattern strength analysis с Shark-специфичными метриками
+            # Pattern strength analysis with Shark-specific metrics
             pattern_strength = self._calculate_shark_pattern_strength(
                 pattern_points, fibonacci_confluence, volume_confirmation
             )
             
-            # Создание расширенного результата для Shark
+            # Create extended result for Shark
             shark_result = SharkPatternResult(
-                point_x=x,  # В Shark: X соответствует традиционной точке X
+                point_x=x,  # In Shark: X corresponds to the traditional X point
                 point_a=a,
                 point_b=b,
                 point_c=c,
-                point_d=c,  # В Shark: C является завершающей точкой (как D в других паттернах)
+                point_d=c,  # In Shark: C is the completion point (like D in other patterns)
                 point_o=o,  # Unique point O for Shark
                 pattern_type=pattern_type,
                 validation_status=validation_status,
                 confidence_score=confidence_score,
-                ab_ratio=ab_retracement,  # В контексте Shark
-                bc_ratio=bc_extension,    # В контексте Shark
-                cd_ratio=0.0,            # Не применимо для Shark
-                ad_ratio=0.0,            # Не применимо для Shark
-                ox_ratio=1.0,            # OX как базовое движение
+                ab_ratio=ab_retracement,  # In Shark context
+                bc_ratio=bc_extension,    # In Shark context
+                cd_ratio=0.0,            # Not applicable for Shark
+                ad_ratio=0.0,            # Not applicable for Shark
+                ox_ratio=1.0,            # OX as base movement
                 xa_extension=xa_extension,
                 prz_confluence=prz_confluence,
                 entry_price=entry_price,
@@ -414,15 +414,15 @@ class SharkPattern(GartleyPattern):
             # Calculate potential PRZ levels
             prz_scores = []
             
-            # 1. 88.6% retracement от OX
+            # 1. 88.6% retracement of OX
             expected_886_level = o.price + (x.price - o.price) * self.shark_fib_ratios.PRZ_CONFLUENCE_88_6
             actual_c_distance = abs(c.price - expected_886_level)
-            max_distance = ox_distance * 0.1  # 10% от OX движения
+            max_distance = ox_distance * 0.1  # 10% of OX movement
             if max_distance > 0:
                 score_886 = max(0, 1.0 - (actual_c_distance / max_distance))
                 prz_scores.append(score_886)
             
-            # 2. 113% extension от AB
+            # 2. 113% extension of AB
             if ab_distance > 0:
                 expected_113_move = ab_distance * self.shark_fib_ratios.PRZ_CONFLUENCE_113
                 if pattern_type := PatternType.BULLISH if x.price > o.price else PatternType.BEARISH:
@@ -437,7 +437,7 @@ class SharkPattern(GartleyPattern):
                         score_113 = max(0, 1.0 - (actual_distance / max_distance_113))
                         prz_scores.append(score_113)
             
-            # 3. 161.8% extension от AB
+            # 3. 161.8% extension of AB
             if ab_distance > 0:
                 expected_1618_move = ab_distance * self.shark_fib_ratios.PRZ_CONFLUENCE_161_8
                 if pattern_type := PatternType.BULLISH if x.price > o.price else PatternType.BEARISH:
@@ -475,17 +475,17 @@ class SharkPattern(GartleyPattern):
             scores = []
             weights = []
             
-            # 1. Fibonacci accuracy (35% вес)
+            # 1. Fibonacci accuracy (35% weight)
             scores.append(fibonacci_confluence)
             weights.append(0.35)
             
-            # 2. PRZ quality (30% вес - критично для Shark!)
+            # 2. PRZ quality (30% weight - critical for Shark!)
             o, x, a, b, c = pattern_points
             prz_quality = self._calculate_prz_confluence(o, x, a, b, c)
             scores.append(prz_quality)
             weights.append(0.30)
             
-            # 3. XA extension precision (20% вес)
+            # 3. XA extension precision (20% weight)
             ox_distance = abs(x.price - o.price)
             xa_distance = abs(a.price - x.price)
             if ox_distance > 0:
@@ -501,12 +501,12 @@ class SharkPattern(GartleyPattern):
             else:
                 weights[0] += 0.20
             
-            # 4. Pattern completeness (10% вес)
+            # 4. Pattern completeness (10% weight)
             completeness_score = self._assess_shark_completeness(pattern_points)
             scores.append(completeness_score)
             weights.append(0.10)
             
-            # 5. Volume confirmation (5% вес, если доступно)
+            # 5. Volume confirmation (5% weight, if available)
             if self.enable_volume_analysis and 'volume' in data.columns:
                 volume_score = self._analyze_volume_confirmation(pattern_points, data)
                 scores.append(volume_score)
@@ -531,27 +531,27 @@ class SharkPattern(GartleyPattern):
         try:
             o, x, a, b, c = pattern_points
             
-            # Все точки должны быть определены
+            # All points must be defined
             if any(point is None for point in pattern_points):
                 return 0.0
             
-            # Проверка правильной временной последовательности
+            # Check correct time sequence
             indices = [point.index for point in pattern_points]
             if indices != sorted(indices):
                 return 0.0
                 
-            # Проверка достаточных временных интервалов между точками
-            min_interval = 3  # Минимум 3 бара между точками (больше чем для других паттернов)
+            # Check sufficient time intervals between points
+            min_interval = 3  # Minimum 3 bars between points (more than for other patterns)
             for i in range(len(indices) - 1):
                 if indices[i + 1] - indices[i] < min_interval:
-                    return 0.5  # Паттерн слишком сжат
+                    return 0.5  # Pattern is too compressed
             
-            # Shark-специфичная проверка: C должно быть в потенциальной зоне разворота
+            # Shark-specific check: C should be in the potential reversal zone
             prz_quality = self._calculate_prz_confluence(o, x, a, b, c)
             if prz_quality < 0.3:
-                return 0.6  # PRZ недостаточно качественная
+                return 0.6  # PRZ quality is insufficient
             
-            # Все проверки пройдены
+            # All checks passed
             return 1.0
             
         except Exception as e:
@@ -574,28 +574,28 @@ class SharkPattern(GartleyPattern):
             # Entry price at point C (PRZ completion)
             entry_price = c.price
             
-            # Stop loss calculation для Shark паттерна
+            # Stop loss calculation for Shark pattern
             if pattern_type == PatternType.BULLISH:
-                # Для bullish Shark: SL ниже PRZ с буфером
+                # For bullish Shark: SL below PRZ with buffer
                 bc_move = c.price - b.price
-                stop_loss = c.price - (bc_move * 0.15)  # 15% от BC движения
+                stop_loss = c.price - (bc_move * 0.15)  # 15% of BC movement
                 
-                # Take Profit levels основанные на Fibonacci retracements
+                # Take Profit levels based on Fibonacci retracements
                 ox_range = x.price - o.price
-                tp1 = entry_price + (ox_range * 0.382)  # 38.2% от OX
-                tp2 = entry_price + (ox_range * 0.618)  # 61.8% от OX  
-                tp3 = entry_price + (ox_range * 0.786)  # 78.6% от OX
+                tp1 = entry_price + (ox_range * 0.382)  # 38.2% of OX
+                tp2 = entry_price + (ox_range * 0.618)  # 61.8% of OX  
+                tp3 = entry_price + (ox_range * 0.786)  # 78.6% of OX
                 
             else:  # BEARISH
-                # Для bearish Shark: SL выше PRZ
+                # For bearish Shark: SL above PRZ
                 bc_move = b.price - c.price
-                stop_loss = c.price + (bc_move * 0.15)  # 15% от BC движения
+                stop_loss = c.price + (bc_move * 0.15)  # 15% of BC movement
                 
                 # Take profit levels (below entry)
                 ox_range = o.price - x.price
-                tp1 = entry_price - (ox_range * 0.382)  # 38.2% от OX
-                tp2 = entry_price - (ox_range * 0.618)  # 61.8% от OX
-                tp3 = entry_price - (ox_range * 0.786)  # 78.6% от OX
+                tp1 = entry_price - (ox_range * 0.382)  # 38.2% of OX
+                tp2 = entry_price - (ox_range * 0.618)  # 61.8% of OX
+                tp3 = entry_price - (ox_range * 0.786)  # 78.6% of OX
             
             return entry_price, stop_loss, (tp1, tp2, tp3)
             
@@ -612,18 +612,18 @@ class SharkPattern(GartleyPattern):
     ) -> float:
         """Calculate Shark pattern strength with PRZ metrics."""
         try:
-            # Базовые компоненты силы
+            # Base strength components
             strength_components = [
                 (fibonacci_confluence, 0.4),  # Fibonacci accuracy - 40%
                 (volume_confirmation, 0.2),   # Volume confirmation - 20%
             ]
             
-            # PRZ quality (30% вес - критично для Shark)
+            # PRZ quality (30% weight - critical for Shark)
             o, x, a, b, c = pattern_points
             prz_quality = self._calculate_prz_confluence(o, x, a, b, c)
             strength_components.append((prz_quality, 0.3))
             
-            # Pattern duration (10% вес)
+            # Pattern duration (10% weight)
             pattern_duration = c.index - o.index
             duration_score = min(1.0, pattern_duration / 60.0)  # Optimal around 60 bars
             strength_components.append((duration_score, 0.1))
@@ -703,7 +703,7 @@ class SharkPattern(GartleyPattern):
         Shark-specific entry analysis with PRZ focus.
         """
         try:
-            # Базовые сигналы
+            # Base signals
             signals = {
                 'action': 'BUY' if pattern.pattern_type == PatternType.BULLISH else 'SELL',
                 'entry_price': pattern.entry_price,
@@ -720,7 +720,7 @@ class SharkPattern(GartleyPattern):
                 'entry_reason': f"Shark {pattern.pattern_type.value} pattern PRZ completion"
             }
             
-            # Shark-специфичные условия входа
+            # Shark-specific entry conditions
             signals['entry_conditions'] = {
                 'min_confidence_met': pattern.confidence_score >= self.min_confidence,
                 'prz_quality_good': pattern.prz_confluence >= 0.5,
@@ -732,14 +732,14 @@ class SharkPattern(GartleyPattern):
                 'volume_confirmed': pattern.volume_confirmation > 0.4 if self.enable_volume_analysis else True
             }
             
-            # Shark-специфичный timing
+            # Shark-specific timing
             signals['timing'] = {
                 'immediate': pattern.confidence_score > 0.85 and pattern.prz_confluence > 0.7,
                 'wait_for_confirmation': pattern.confidence_score > 0.75 or pattern.prz_confluence > 0.5,
                 'avoid': pattern.confidence_score < 0.75 and pattern.prz_confluence < 0.5
             }
             
-            # Уникальная информация о Shark паттерне
+            # Unique information about Shark pattern
             signals['shark_specifics'] = {
                 'prz_confluence': pattern.prz_confluence,
                 'xa_extension': pattern.xa_extension,
@@ -788,17 +788,17 @@ class SharkPattern(GartleyPattern):
     
     def _check_886_level(self, pattern: SharkPatternResult) -> Dict[str, any]:
         """Check 88.6% level from OX."""
-        # Simplified implementation - можно расширить
+        # Simplified implementation - can be extended
         return {'present': True, 'accuracy': 'HIGH'}
     
     def _check_113_level(self, pattern: SharkPatternResult) -> Dict[str, any]:
         """Check 113% extension from AB."""
-        # Simplified implementation - можно расширить
+        # Simplified implementation - can be extended
         return {'present': True, 'accuracy': 'MEDIUM'}
     
     def _check_1618_level(self, pattern: SharkPatternResult) -> Dict[str, any]:
         """Check 161.8% extension from AB."""
-        # Simplified implementation - можно расширить
+        # Simplified implementation - can be extended
         return {'present': True, 'accuracy': 'HIGH'}
     
     def _get_prz_recommendation(self, prz_confluence: float) -> str:

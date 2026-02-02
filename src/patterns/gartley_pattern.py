@@ -145,10 +145,10 @@ class GartleyPattern:
         ```python
         detector = GartleyPattern(tolerance=0.05, min_confidence=0.75)
         
-        # Детекция паттернов в OHLCV данных
+        # Detect patterns in OHLCV data
         patterns = detector.detect_patterns(ohlcv_data)
-        
-        # Анализ конкретного паттерна
+
+        # Analyze a specific pattern
         if patterns:
             best_pattern = patterns[0]
             entry_signals = detector.get_entry_signals(best_pattern)
@@ -206,17 +206,17 @@ class GartleyPattern:
         parallel processing for real-time trading systems.
         
         Args:
-            data: OHLCV DataFrame с колонками ['open', 'high', 'low', 'close', 'volume']
-            symbol: Торговый символ (опционально)
-            timeframe: Таймфрейм данных (опционально)
-            
+            data: OHLCV DataFrame with columns ['open', 'high', 'low', 'close', 'volume']
+            symbol: Trading symbol (optional)
+            timeframe: Data timeframe (optional)
+
         Returns:
-            List[PatternResult]: Список найденных валидных паттернов,
-                               отсортированных по confidence score
-                               
+            List[PatternResult]: List of detected valid patterns,
+                               sorted by confidence score
+
         Raises:
-            ValueError: Некорректные входные данные
-            RuntimeError: Ошибки в процессе детекции
+            ValueError: Invalid input data
+            RuntimeError: Errors during detection
         """
         try:
             # Validate input data
@@ -283,7 +283,7 @@ class GartleyPattern:
     
     def _find_pivot_points(self, data: pd.DataFrame) -> List[PatternPoint]:
         """
-        Поиск значимых точек (peaks и troughs) для построения паттерна.
+        Find significant points (peaks and troughs) for pattern construction.
         
         Advanced ZigZag implementation with adaptive thresholds
         for optimal pattern detection in volatile crypto markets.
@@ -362,7 +362,7 @@ class GartleyPattern:
         data: pd.DataFrame
     ) -> List[Tuple[PatternPoint, PatternPoint, PatternPoint, PatternPoint, PatternPoint]]:
         """
-        Поиск потенциальных 5-точечных паттернов Gartley (X-A-B-C-D).
+        Search for potential 5-point Gartley patterns (X-A-B-C-D).
         
         Efficient pattern matching with geometric validation
         and Fibonacci constraints for high-probability setups.
@@ -408,9 +408,9 @@ class GartleyPattern:
         d: PatternPoint
     ) -> bool:
         """
-        Базовая геометрическая валидация структуры паттерна Gartley.
-        
-        Проверяет правильную последовательность high/low для bullish/bearish паттернов.
+        Basic geometric validation of Gartley pattern structure.
+
+        Checks the correct high/low sequence for bullish/bearish patterns.
         """
         try:
             # Determine pattern type by X->A movement
@@ -435,7 +435,7 @@ class GartleyPattern:
         timeframe: Optional[str]
     ) -> Optional[PatternResult]:
         """
-        Полная валидация и scoring паттерна Gartley.
+        Full validation and scoring of the Gartley pattern.
         
         Comprehensive validation with multiple scoring
         algorithms, risk analysis, and ML-enhanced pattern recognition.
@@ -454,33 +454,33 @@ class GartleyPattern:
             if xa_distance == 0 or ab_distance == 0 or xa_distance == 0:
                 return None
             
-            # Fibonacci ratios для валидации
+            # Fibonacci ratios for validation
             ab_ratio = ab_distance / xa_distance
             bc_ratio = bc_distance / ab_distance if ab_distance > 0 else 0
             cd_ratio = cd_distance / bc_distance if bc_distance > 0 else 0
             ad_ratio = ad_distance / xa_distance
-            
+
             # Determine pattern type
             pattern_type = PatternType.BULLISH if a.price > x.price else PatternType.BEARISH
-            
+
             # Validate Fibonacci ratios with tolerance
             fib_scores = []
-            
-            # AB должно быть ~61.8% от XA
+
+            # AB should be ~61.8% of XA
             ab_score = 1.0 - abs(ab_ratio - self.fib_ratios.AB_RETRACEMENT) / self.fib_ratios.AB_RETRACEMENT
             fib_scores.append(max(0, ab_score))
-            
-            # BC должно быть 38.2% - 88.6% от AB
+
+            # BC should be 38.2% - 88.6% of AB
             bc_in_range = (self.fib_ratios.BC_MIN_RETRACEMENT <= bc_ratio <= self.fib_ratios.BC_MAX_RETRACEMENT)
             bc_score = 1.0 if bc_in_range else 0.0
             fib_scores.append(bc_score)
-            
-            # CD должно быть 127.2% - 161.8% от BC
+
+            # CD should be 127.2% - 161.8% of BC
             cd_in_range = (self.fib_ratios.CD_MIN_EXTENSION <= cd_ratio <= self.fib_ratios.CD_MAX_EXTENSION)
             cd_score = 1.0 if cd_in_range else 0.0
             fib_scores.append(cd_score)
-            
-            # AD должно быть ~78.6% от XA (критично для Gartley)
+
+            # AD should be ~78.6% of XA (critical for Gartley)
             ad_score = 1.0 - abs(ad_ratio - self.fib_ratios.AD_RETRACEMENT) / self.fib_ratios.AD_RETRACEMENT
             fib_scores.append(max(0, ad_score))
             
@@ -584,29 +584,29 @@ class GartleyPattern:
             scores = []
             weights = []
             
-            # 1. Fibonacci accuracy (40% вес)
+            # 1. Fibonacci accuracy (40% weight)
             scores.append(fibonacci_confluence)
             weights.append(0.40)
             
-            # 2. Pattern symmetry (20% вес)
+            # 2. Pattern symmetry (20% weight)
             symmetry_score = self._calculate_pattern_symmetry(pattern_points)
             scores.append(symmetry_score)
             weights.append(0.20)
             
-            # 3. Market context (15% вес)
+            # 3. Market context (15% weight)
             market_context_score = self._analyze_market_context(pattern_points, data)
             scores.append(market_context_score)
             weights.append(0.15)
             
-            # 4. Volume confirmation (15% вес, если доступно)
+            # 4. Volume confirmation (15% weight, if available)
             if self.enable_volume_analysis and 'volume' in data.columns:
                 volume_score = self._analyze_volume_confirmation(pattern_points, data)
                 scores.append(volume_score)
                 weights.append(0.15)
             else:
-                weights[0] += 0.15  # Перераспределяем вес на Fibonacci
+                weights[0] += 0.15  # Redistribute weight to Fibonacci
             
-            # 5. Pattern completeness (10% вес)
+            # 5. Pattern completeness (10% weight)
             completeness_score = self._assess_pattern_completeness(pattern_points)
             scores.append(completeness_score)
             weights.append(0.10)
@@ -628,17 +628,17 @@ class GartleyPattern:
         try:
             x, a, b, c, d = pattern_points
             
-            # Временные интервалы между точками
+            # Time intervals between points
             time_xa = a.index - x.index
             time_ab = b.index - a.index
             time_bc = c.index - b.index
             time_cd = d.index - c.index
-            
-            # Расчет симметрии временных интервалов
+
+            # Calculate time interval symmetry
             times = [time_xa, time_ab, time_bc, time_cd]
             time_symmetry = 1.0 - (np.std(times) / np.mean(times)) if np.mean(times) > 0 else 0.0
-            
-            # Расчет симметрии ценовых движений
+
+            # Calculate price movement symmetry
             moves = [
                 abs(a.price - x.price),
                 abs(b.price - a.price),
@@ -647,7 +647,7 @@ class GartleyPattern:
             ]
             price_symmetry = 1.0 - (np.std(moves) / np.mean(moves)) if np.mean(moves) > 0 else 0.0
             
-            # Общая симметрия
+            # Overall symmetry
             return (time_symmetry * 0.3 + price_symmetry * 0.7)
             
         except Exception as e:
@@ -663,30 +663,30 @@ class GartleyPattern:
         try:
             x, a, b, c, d = pattern_points
             
-            # Анализ тренда до паттерна
+            # Analyze trend before pattern
             pre_pattern_data = data.iloc[:x.index] if x.index > 10 else data.iloc[:10]
             if len(pre_pattern_data) < 5:
                 return 0.5
                 
-            # Расчет momentum и volatility
+            # Calculate momentum and volatility
             price_changes = pre_pattern_data['close'].pct_change().dropna()
             momentum = np.mean(price_changes[-10:]) if len(price_changes) >= 10 else 0
             volatility = np.std(price_changes[-10:]) if len(price_changes) >= 10 else 0
             
-            # Context score based на market conditions
+            # Context score based on market conditions
             context_score = 0.5
-            
-            # Паттерн лучше работает в trending markets
-            if abs(momentum) > 0.01:  # Сильный тренд
+
+            # Pattern works better in trending markets
+            if abs(momentum) > 0.01:  # Strong trend
                 context_score += 0.2
-                
-            # Умеренная volatility предпочтительна
+
+            # Moderate volatility is preferred
             if 0.01 < volatility < 0.05:
                 context_score += 0.2
             elif volatility > 0.05:
                 context_score -= 0.1
                 
-            # Анализ предыдущих уровней support/resistance
+            # Analyze previous support/resistance levels
             if self._check_support_resistance_levels(pattern_points, data):
                 context_score += 0.1
                 
@@ -708,7 +708,7 @@ class GartleyPattern:
                 
             x, a, b, c, d = pattern_points
             
-            # Volume на ключевых точках
+            # Volume at key points
             volumes = []
             for point in [x, a, b, c, d]:
                 if point.index < len(data):
@@ -717,22 +717,22 @@ class GartleyPattern:
             if not volumes or all(v == 0 for v in volumes):
                 return 0.0
             
-            # Средний volume до паттерна
+            # Average volume before pattern
             pre_pattern_volume = data.iloc[:x.index]['volume'].mean() if x.index > 10 else data['volume'].mean()
             
             # Volume confirmation score
             volume_score = 0.0
             
-            # Повышенный volume на точке A (initial impulse)
+            # Increased volume at point A (initial impulse)
             if len(volumes) > 1 and volumes[1] > pre_pattern_volume * 1.2:
                 volume_score += 0.3
                 
-            # Снижающийся volume на corrections (B, C)
+            # Decreasing volume on corrections (B, C)
             if len(volumes) > 3:
                 if volumes[2] < volumes[1] and volumes[3] < volumes[2]:
                     volume_score += 0.2
                     
-            # Увеличивающийся volume на completion (D)
+            # Increasing volume on completion (D)
             if len(volumes) > 4 and volumes[4] > volumes[3] * 1.1:
                 volume_score += 0.5
             
@@ -750,22 +750,22 @@ class GartleyPattern:
         try:
             x, a, b, c, d = pattern_points
             
-            # Все точки должны быть определены
+            # All points must be defined
             if any(point is None for point in pattern_points):
                 return 0.0
             
-            # Проверка правильной временной последовательности
+            # Check correct time sequence
             indices = [point.index for point in pattern_points]
             if indices != sorted(indices):
                 return 0.0
-                
-            # Проверка достаточных временных интервалов между точками
-            min_interval = 2  # Минимум 2 бара между точками
+
+            # Check sufficient time intervals between points
+            min_interval = 2  # Minimum 2 bars between points
             for i in range(len(indices) - 1):
                 if indices[i + 1] - indices[i] < min_interval:
-                    return 0.5  # Паттерн слишком сжат
-            
-            # Все проверки пройдены
+                    return 0.5  # Pattern is too compressed
+
+            # All checks passed
             return 1.0
             
         except Exception as e:
@@ -779,17 +779,17 @@ class GartleyPattern:
     ) -> bool:
         """Check for alignment with historical support/resistance levels."""
         try:
-            # Simplified implementation - можно расширить с полноценным S/R анализом
+            # Simplified implementation - can be extended with full S/R analysis
             x, a, b, c, d = pattern_points
             
-            # Получаем исторические high/low levels
+            # Get historical high/low levels
             historical_highs = data['high'].rolling(window=20).max()
             historical_lows = data['low'].rolling(window=20).min()
             
-            # Tolerance для совпадения уровней
+            # Tolerance for level matching
             tolerance = 0.02  # 2%
             
-            # Проверяем совпадение точки D с историческими уровнями
+            # Check if point D aligns with historical levels
             d_price = d.price
             
             for i in range(max(0, d.index - 100), d.index):
