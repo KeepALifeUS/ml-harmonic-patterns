@@ -406,3 +406,7 @@ MIT License
 ---
 
 **Built with ML Harmonic Patterns v1.0**
+
+## Support
+
+For questions and support, please open an issue on GitHub.
